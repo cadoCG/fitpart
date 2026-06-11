@@ -79,5 +79,10 @@ TEMPLATE = register(
         build=build,
         title_de="Wandhaken",
         description_de="J-Profil-Haken mit Rückplatte, Schraubloch und Senkung.",
+        print_rec={
+            "material": "PETG; ASA im Aussenbereich",
+            "orientation_de": "Liegend auf der Seite drucken – Schichten verlaufen entlang des J-Profils statt quer zur Biegekante.",
+            "infill": "40–60 %, 4 Perimeter",
+        },
     )
 )

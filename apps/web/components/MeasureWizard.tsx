@@ -20,7 +20,11 @@ import {
 type ParamValues = Record<string, number | string | boolean>;
 
 type Props = {
-  onComplete: (archetype: Archetype, params: ParamValues) => void;
+  onComplete: (
+    archetype: Archetype,
+    params: ParamValues,
+    notes?: string,
+  ) => void;
 };
 
 type Phase = "upload" | "analyzing" | "suggest" | "measure";
@@ -154,8 +158,9 @@ export default function MeasureWizard({ onComplete }: Props) {
       ...finalMeasured,
     };
     const a = archetype;
+    const notes = result?.notes_de || undefined;
     close();
-    onComplete(a, params);
+    onComplete(a, params, notes);
   };
 
   const stepperIndex = phase === "measure" ? 2 : phase === "suggest" ? 1 : 0;

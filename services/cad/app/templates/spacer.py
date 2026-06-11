@@ -64,5 +64,10 @@ TEMPLATE = register(
         build=build,
         title_de="Distanzhülse",
         description_de="Hohlzylinder als Abstandshalter über Schraube/Welle.",
+        print_rec={
+            "material": "PETG; PLA bei geringer Last",
+            "orientation_de": "Stehend drucken (Bohrung vertikal), so bleibt das Loch rund.",
+            "infill": "100 % oder 4+ Perimeter bei Druckbelastung",
+        },
     )
 )

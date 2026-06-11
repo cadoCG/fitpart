@@ -48,6 +48,19 @@ def test_generate_3mf_with_recommendation():
     assert r.status_code == 200
     assert r.headers["content-type"] == "model/3mf"
 
+    # Druckempfehlung des Templates muss als Metadaten im 3MF stecken
+    # (3MF = ZIP, Metadaten im XML unter 3D/3dmodel.model).
+    import io
+    import zipfile
+
+    with zipfile.ZipFile(io.BytesIO(r.content)) as zf:
+        model_xml = zf.read("3D/3dmodel.model").decode()
+    # lib3mf vergibt den Namespace-Alias selbst (customXMLNS0) – wir prüfen
+    # daher auf die Metadaten-Namen und einen Empfehlungswert.
+    assert ':material" type="str"' in model_xml
+    assert ':orientation_de" type="str"' in model_xml
+    assert "PETG" in model_xml
+
 
 def test_generate_unknown_archetype():
     r = client.post(

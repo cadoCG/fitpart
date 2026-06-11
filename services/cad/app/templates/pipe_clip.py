@@ -73,5 +73,10 @@ TEMPLATE = register(
         build=build,
         title_de="Rohr-/Stangenclip",
         description_de="C-Schnappclip mit Fussplatte und zwei Schraublöchern.",
+        print_rec={
+            "material": "PETG (federt beim Aufklipsen; PLA bricht)",
+            "orientation_de": "Liegend drucken mit Öffnung zur Seite – Schichtlinien quer zur Klemmrichtung.",
+            "infill": "30–50 %, 3 Perimeter",
+        },
     )
 )

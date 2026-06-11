@@ -77,5 +77,10 @@ TEMPLATE = register(
         build=build,
         title_de="Kabelclip",
         description_de="1–4 parallele Schnappkanäle; Montage per Schraube oder Klebepad.",
+        print_rec={
+            "material": "PETG oder PLA",
+            "orientation_de": "Liegend auf der Rückseite drucken.",
+            "infill": "30 %, 2–3 Perimeter",
+        },
     )
 )

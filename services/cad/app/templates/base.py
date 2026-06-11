@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Callable, Type
 
 from build123d import Part
@@ -23,6 +23,9 @@ class Template:
     build: BuildFn
     title_de: str
     description_de: str
+    # Druckempfehlung (Material, Ausrichtung, Infill, …) – landet als
+    # Metadaten im 3MF-Export und ist pro Archetyp kuratiert.
+    print_rec: dict[str, str] = field(default_factory=dict)
 
     def validate_params(self, raw: dict) -> BaseModel:
         """Roh-Parameter (vom LLM/Frontend) gegen das Pydantic-Modell prüfen."""

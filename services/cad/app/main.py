@@ -119,7 +119,7 @@ def generate(req: GenerateRequest) -> StreamingResponse:
     recommendation = {
         "generator": "fitpart-cad",
         "archetype": template.archetype,
-        "note_de": "Wandstärke geprüft. Empfohlenes Material gemäss Archetyp.",
+        **template.print_rec,
     }
     data = export_part(part, req.format, print_recommendation=recommendation)
 

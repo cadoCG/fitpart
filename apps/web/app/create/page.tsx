@@ -34,8 +34,10 @@ export default function CreatePage() {
   );
   const [stl, setStl] = useState<ArrayBuffer | null>(null);
   const [busy, setBusy] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [profile, setProfile] = useState<ToleranceProfile | null>(null);
+  const [photoNotes, setPhotoNotes] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   // Kalibrier-Profil (falls vorhanden) laden und auf alle Generierungen anwenden.
@@ -50,13 +52,19 @@ export default function CreatePage() {
     setArchetype(next);
     setParams(ARCHETYPE_UI[next].defaults);
     setStl(null);
+    setPhotoNotes(null);
   };
 
   // Ergebnis aus dem Foto-/Mess-Wizard übernehmen (Archetyp + vorbefüllte Params).
-  const applyWizardResult = (next: Archetype, wizardParams: ParamValues) => {
+  const applyWizardResult = (
+    next: Archetype,
+    wizardParams: ParamValues,
+    notes?: string,
+  ) => {
     setArchetype(next);
     setParams(wizardParams);
     setStl(null);
+    setPhotoNotes(notes ?? null);
   };
 
   // Debounced Live-Regenerate bei jeder Parameteränderung.
@@ -106,14 +114,45 @@ export default function CreatePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [archetype, params, profile]);
 
-  const download = () => {
-    if (!stl) return;
-    const url = URL.createObjectURL(new Blob([stl], { type: "model/stl" }));
+  const saveBlob = (data: BlobPart, type: string, ext: string) => {
+    const url = URL.createObjectURL(new Blob([data], { type }));
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${archetype}.stl`;
+    a.download = `${archetype}.${ext}`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  // STL kommt aus der Vorschau (gecacht); 3MF wird frisch geholt, weil es
+  // zusätzlich die Druckempfehlung als Metadaten trägt.
+  const download = async (format: "stl" | "3mf") => {
+    if (format === "stl") {
+      if (stl) saveBlob(stl, "model/stl", "stl");
+      return;
+    }
+    const parsed = ARCHETYPE_SCHEMAS[archetype].safeParse(params);
+    if (!parsed.success) return;
+    setDownloading(true);
+    try {
+      const res = await fetch("/api/cad/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          archetype,
+          params: parsed.data,
+          ...(profile ? { tolerance_profile: profile } : {}),
+          format: "3mf",
+        }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      saveBlob(await res.arrayBuffer(), "model/3mf", "3mf");
+    } catch (e) {
+      setError(
+        `${t("errorGenerate")}: ${e instanceof Error ? e.message : String(e)}`,
+      );
+    } finally {
+      setDownloading(false);
+    }
   };
 
   const renderField = (field: FieldMeta) => {
@@ -245,13 +284,61 @@ export default function CreatePage() {
           </p>
         )}
 
-        <button
-          onClick={download}
-          disabled={!stl || busy}
-          className="w-full rounded-lg bg-zinc-900 px-4 py-2.5 font-medium text-white transition enabled:hover:bg-zinc-700 disabled:opacity-40"
-        >
-          {busy ? t("generating") : t("download")}
-        </button>
+        <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm">
+          <p className="font-semibold text-zinc-700">🖨 {t("printRec.title")}</p>
+          <dl className="mt-1.5 space-y-1 text-zinc-600">
+            <div className="flex gap-2">
+              <dt className="w-24 shrink-0 text-zinc-400">
+                {t("printRec.material")}
+              </dt>
+              <dd>{t(`printRec.${archetype}.material`)}</dd>
+            </div>
+            <div className="flex gap-2">
+              <dt className="w-24 shrink-0 text-zinc-400">
+                {t("printRec.orientation")}
+              </dt>
+              <dd>{t(`printRec.${archetype}.orientation`)}</dd>
+            </div>
+            <div className="flex gap-2">
+              <dt className="w-24 shrink-0 text-zinc-400">
+                {t("printRec.infill")}
+              </dt>
+              <dd>{t(`printRec.${archetype}.infill`)}</dd>
+            </div>
+          </dl>
+          {photoNotes && (
+            <p className="mt-2 border-t border-zinc-200 pt-2 text-zinc-600">
+              <span className="text-zinc-400">💡 {t("printRec.fromPhoto")}:</span>{" "}
+              {photoNotes}
+            </p>
+          )}
+        </div>
+
+        <div className="flex gap-2">
+          <button
+            onClick={() => void download("3mf")}
+            disabled={!stl || busy || downloading}
+            className="flex-1 rounded-lg bg-zinc-900 px-4 py-2.5 font-medium text-white transition enabled:hover:bg-zinc-700 disabled:opacity-40"
+          >
+            {busy || downloading ? (
+              t("generating")
+            ) : (
+              <>
+                {t("download3mf")}{" "}
+                <span className="text-xs font-normal text-zinc-300">
+                  {t("download3mfHint")}
+                </span>
+              </>
+            )}
+          </button>
+          <button
+            onClick={() => void download("stl")}
+            disabled={!stl || busy || downloading}
+            className="rounded-lg border border-zinc-300 bg-white px-4 py-2.5 font-medium text-zinc-700 transition enabled:hover:border-zinc-500 disabled:opacity-40"
+          >
+            {t("downloadStl")}
+          </button>
+        </div>
       </section>
 
       <section className="flex min-h-[24rem] flex-col overflow-hidden rounded-xl border border-zinc-200 md:sticky md:top-10 md:max-h-[calc(100vh-5rem)]">

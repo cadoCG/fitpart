@@ -76,5 +76,10 @@ TEMPLATE = register(
         build=build,
         title_de="L-Winkel / Regalträger",
         description_de="Rechtwinkliger Träger mit Lochbild und optionaler Verrippung.",
+        print_rec={
+            "material": "PETG",
+            "orientation_de": "Liegend auf der Seitenfläche drucken – Schichten parallel zur Lastebene.",
+            "infill": "40 % oder mehr, 4 Perimeter; bei Regallast Verrippung aktivieren",
+        },
     )
 )

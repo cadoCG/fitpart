@@ -71,5 +71,10 @@ TEMPLATE = register(
         build=build,
         title_de="Gerätehalterung",
         description_de="U-Schale mit Rückplatte, Lippe und Wandmontage.",
+        print_rec={
+            "material": "PLA innen; PETG bei Wärme/Last",
+            "orientation_de": "Mit der Rückplatte flach auf dem Druckbett drucken.",
+            "infill": "30–50 %, 3 Perimeter",
+        },
     )
 )

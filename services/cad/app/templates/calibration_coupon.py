@@ -116,5 +116,10 @@ TEMPLATE = register(
         build=build,
         title_de="Kalibrier-Coupon",
         description_de="Loch-/Zapfen-/Nut-Leiter zum Vermessen des Druckers.",
+        print_rec={
+            "material": "Gleiches Material wie die späteren Teile – das Profil gilt pro Drucker + Material.",
+            "orientation_de": "Flach aufs Bett, 0,2-mm-Schichten, keine Stützen.",
+            "infill": "Slicer-Default",
+        },
     )
 )

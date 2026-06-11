@@ -57,6 +57,46 @@
     },
     "generating": "Generiere …",
     "download": "STL herunterladen",
+    "download3mf": "3MF herunterladen",
+    "download3mfHint": "mit Druckprofil",
+    "downloadStl": "STL",
+    "printRec": {
+      "title": "Druckempfehlung",
+      "material": "Material",
+      "orientation": "Ausrichtung",
+      "infill": "Füllung",
+      "fromPhoto": "Aus deinem Foto",
+      "spacer": {
+        "material": "PETG; PLA bei geringer Last",
+        "orientation": "Stehend drucken (Bohrung vertikal), so bleibt das Loch rund.",
+        "infill": "100 % oder 4+ Perimeter bei Druckbelastung"
+      },
+      "wall_hook": {
+        "material": "PETG; ASA im Aussenbereich",
+        "orientation": "Liegend auf der Seite drucken – Schichten verlaufen entlang des J-Profils statt quer zur Biegekante.",
+        "infill": "40–60 %, 4 Perimeter"
+      },
+      "l_bracket": {
+        "material": "PETG",
+        "orientation": "Liegend auf der Seitenfläche drucken – Schichten parallel zur Lastebene.",
+        "infill": "40 % oder mehr, 4 Perimeter; bei Regallast Verrippung aktivieren"
+      },
+      "pipe_clip": {
+        "material": "PETG (federt beim Aufklipsen; PLA bricht)",
+        "orientation": "Liegend drucken mit Öffnung zur Seite – Schichtlinien quer zur Klemmrichtung.",
+        "infill": "30–50 %, 3 Perimeter"
+      },
+      "cable_clip": {
+        "material": "PETG oder PLA",
+        "orientation": "Liegend auf der Rückseite drucken.",
+        "infill": "30 %, 2–3 Perimeter"
+      },
+      "device_holder": {
+        "material": "PLA innen; PETG bei Wärme/Last",
+        "orientation": "Mit der Rückplatte flach auf dem Druckbett drucken.",
+        "infill": "30–50 %, 3 Perimeter"
+      }
+    },
     "viewerHint": "Ziehen zum Drehen · Scrollen zum Zoomen",
     "errorGenerate": "Generierung fehlgeschlagen",
     "noPreview": "Noch keine Vorschau",
