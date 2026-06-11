@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ToleranceProfile } from "./tolerance";
+import { ArchetypeEnum } from "./analyze";
 import { SpacerParams } from "./archetypes/spacer";
 import { WallHookParams } from "./archetypes/wall_hook";
 import { LBracketParams } from "./archetypes/l_bracket";
@@ -9,6 +10,7 @@ import { DeviceHolderParams } from "./archetypes/device_holder";
 
 export * from "./tolerance";
 export * from "./calibration";
+export * from "./analyze";
 export * from "./archetypes/spacer";
 export * from "./archetypes/wall_hook";
 export * from "./archetypes/l_bracket";
@@ -29,6 +31,27 @@ export const ARCHETYPE_SCHEMAS = {
 
 export type Archetype = keyof typeof ARCHETYPE_SCHEMAS;
 export const ARCHETYPES = Object.keys(ARCHETYPE_SCHEMAS) as Archetype[];
+
+/**
+ * Kritische Masse pro Archetyp – müssen vom User gemessen werden, der
+ * MeasureWizard fragt sie Schritt für Schritt ab (Spez: docs/archetypes/).
+ * `satisfies` erzwingt, dass jeder Archetyp abgedeckt ist; der Re-Export von
+ * ArchetypeEnum aus analyze.ts wird darüber implizit mitgeprüft.
+ */
+export const CRITICAL_DIMS = {
+  spacer: ["inner_d"],
+  wall_hook: ["hook_depth", "screw_d"],
+  l_bracket: ["leg_a", "leg_b", "screw_d"],
+  pipe_clip: ["pipe_d"],
+  cable_clip: ["cable_d"],
+  device_holder: ["device_w", "device_d"],
+} as const satisfies Record<Archetype, readonly string[]>;
+
+// Compile-Check: ArchetypeEnum (analyze.ts) und Registry decken sich.
+const _archetypeEnumCheck: readonly Archetype[] = ArchetypeEnum.options;
+const _registryCheck: readonly z.infer<typeof ArchetypeEnum>[] = ARCHETYPES;
+void _archetypeEnumCheck;
+void _registryCheck;
 
 export const ExportFormat = z.enum(["stl", "3mf", "step"]);
 export type ExportFormat = z.infer<typeof ExportFormat>;

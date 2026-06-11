@@ -10,6 +10,7 @@
     "test": "tsc --noEmit"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.104.1",
     "@fitpart/shared": "workspace:*",
     "@react-three/drei": "^10.1.0",
     "@react-three/fiber": "^9.1.0",
