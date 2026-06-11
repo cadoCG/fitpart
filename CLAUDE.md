@@ -46,5 +46,9 @@ Briefing) – 6 Archetypen, Kalibrier-Coupon, kein Payment.
 - [x] CAD-Service: FastAPI-Skeleton, build123d, Template `spacer`, tolerance.py,
       validate.py, export.py (STL/3MF/STEP), Tests, Dockerfile
 - [x] ADR-001 (Template-first)
-- [ ] Next.js-Skeleton: Supabase Auth, STL-Viewer (react-three-fiber)
+- [x] Next.js-Skeleton: /create mit STL-Viewer (react-three-fiber, Bounds,
+      OrbitControls), Param-Slider mit debounced Live-Regenerate,
+      /api/cad/generate-Proxy, next-intl (de-CH), PWA-Manifest
+- [x] Ende-zu-Ende-Smoke-Test: Params → STL ansehen → Download
+- [ ] Supabase Auth (braucht Projekt-Credentials)
 - [ ] Weitere 5 Phase-1-Archetypen

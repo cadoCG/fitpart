@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { ToleranceProfile } from "./tolerance.js";
-import { SpacerParams } from "./archetypes/spacer.js";
+import { ToleranceProfile } from "./tolerance";
+import { SpacerParams } from "./archetypes/spacer";
 
-export * from "./tolerance.js";
-export * from "./archetypes/spacer.js";
+export * from "./tolerance";
+export * from "./archetypes/spacer";
 
 /** Bekannte Archetypen → Zod-Param-Schema (muss mit der CAD-Registry übereinstimmen). */
 export const ARCHETYPE_SCHEMAS = {

@@ -1,0 +1,30 @@
+{
+  "Home": {
+    "title": "FitPart",
+    "tagline": "Fotografiere dein Problem, beantworte 2–3 Fragen, drucke das passende Teil.",
+    "description": "Passgenaue 3D-Druck-Funktionsteile aus Foto + geführter Messung – mit Toleranz-Engine für deinen Drucker.",
+    "cta": "Teil erstellen"
+  },
+  "Create": {
+    "title": "Distanzhülse erstellen",
+    "subtitle": "Parameter anpassen – die Vorschau aktualisiert sich live.",
+    "params": {
+      "inner_d": "Innendurchmesser (Schraube/Welle)",
+      "outer_d": "Aussendurchmesser",
+      "height": "Höhe",
+      "fit": "Passung der Bohrung",
+      "unit_mm": "mm"
+    },
+    "fit": {
+      "press": "Press (kein Spiel)",
+      "snug": "Saugend",
+      "sliding": "Gleitend",
+      "loose": "Locker"
+    },
+    "generating": "Generiere …",
+    "download": "STL herunterladen",
+    "viewerHint": "Ziehen zum Drehen · Scrollen zum Zoomen",
+    "errorGenerate": "Generierung fehlgeschlagen",
+    "noPreview": "Noch keine Vorschau"
+  }
+}

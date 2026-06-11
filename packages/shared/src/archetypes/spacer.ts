@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { FitClass } from "../tolerance.js";
+import { FitClass } from "../tolerance";
 
 const MIN_WALL_RING_MM = 1.6;
 
