@@ -1,0 +1,16 @@
+{
+  "name": "fitpart",
+  "private": true,
+  "version": "0.0.0",
+  "description": "FitPart – Foto + geführte Messung → parametrisches 3D-Druck-Funktionsteil",
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "dev": "pnpm --filter @fitpart/web dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

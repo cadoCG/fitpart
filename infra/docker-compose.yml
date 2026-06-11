@@ -1,0 +1,11 @@
+# Lokales Setup: CAD-Service. Web läuft separat via `pnpm dev` (Vercel-Ziel).
+services:
+  cad:
+    build:
+      context: ../services/cad
+    image: fitpart-cad:dev
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1

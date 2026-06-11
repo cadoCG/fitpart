@@ -1,0 +1,15 @@
+{
+  "params": {
+    "inner_d": 5.0,
+    "outer_d": 10.0,
+    "height": 8.0,
+    "fit": "sliding"
+  },
+  "properties": {
+    "volume": 455.138,
+    "area": 497.059,
+    "size_x": 10.0,
+    "size_y": 10.0,
+    "size_z": 8.0
+  }
+}

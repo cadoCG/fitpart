@@ -1,0 +1,27 @@
+[project]
+name = "fitpart-cad"
+version = "0.0.0"
+description = "FitPart CAD-Service – parametrische Funktionsteil-Generierung (build123d)"
+requires-python = ">=3.11"
+dependencies = [
+    "build123d>=0.10",
+    "manifold3d>=2.5",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "pydantic>=2.6",
+    "numpy",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "httpx>=0.27"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["app", "app.templates"]

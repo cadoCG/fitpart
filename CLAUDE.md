@@ -1,0 +1,50 @@
+# FitPart – Kontext für Claude Code
+
+## Was wir bauen
+Web-App: Foto eines Befestigungs-/Ersatzteil-Problems → Vision-LLM erkennt
+Archetyp → geführte Messung kritischer Masse → parametrisches Teil via
+build123d-Template → Toleranz-Offsets pro Drucker/Material → STL/3MF/STEP.
+Vollständiges Briefing: docs/BRIEFING.md (IMMER zuerst lesen).
+
+## Eiserne Regeln
+1. Das LLM schreibt NIE Geometrie-Code zur Laufzeit. Nur Klassifikation +
+   Parameter-Mapping auf Templates in services/cad/app/templates/.
+2. Jedes Template hat: Pydantic-Param-Modell mit Ranges, Unit-Tests,
+   goldenes Referenz-STL in tests/golden/.
+3. Jede Masse, die eine Passung beeinflusst, läuft durch tolerance.py
+   (Passungsklasse + User-Offset). Nie hartkodierte Zuschläge in Templates.
+4. Validierung vor jedem Export: manifold, min. Wandstärke 2×Düse (0,8 mm
+   bei 0,4er Düse), Bohrungen ≥ 2 mm.
+5. Supabase: neue Tabellen brauchen explizite GRANTs (Breaking Change 2026).
+   RLS auf allen Tabellen, user_id-Policies.
+6. Frontend deutsch-first (de-CH), i18n-Struktur von Anfang an (next-intl).
+
+## Stack
+Next.js App Router + TS + Tailwind + react-three-fiber · Supabase (Auth/DB/
+Storage) · Stripe+TWINT · Python 3.12 + FastAPI + build123d + manifold3d +
+lib3mf · Docker auf Hostinger VPS hinter nginx · Claude API für Vision.
+
+## Repo-Struktur
+- `apps/web` – Next.js (App Router, TS, Tailwind, react-three-fiber)
+- `services/cad` – Python FastAPI + build123d (Templates, Toleranz, Validierung, Export)
+- `packages/shared` – geteilte Typen / JSON-Schemas der Archetypen
+- `infra` – docker-compose + nginx-Snippets
+- `docs` – Briefing, ADRs, Archetyp-Spezifikationen
+
+## Befehle
+- Web: `pnpm dev` / `pnpm test` / `pnpm lint`
+- CAD: `cd services/cad && uvicorn app.main:app --reload` / `pytest`
+- CAD (venv): `services/cad/.venv/bin/python -m pytest services/cad/tests`
+- Beide: `docker compose -f infra/docker-compose.yml up`
+
+## Aktueller Stand / Nächste Schritte
+→ siehe docs/ADR/ und GitHub Issues. MVP-Scope: Phase 1 (Abschnitt 12 im
+Briefing) – 6 Archetypen, Kalibrier-Coupon, kein Payment.
+
+**Stand jetzt (Phase 0):**
+- [x] Monorepo-Scaffold (pnpm workspaces)
+- [x] CAD-Service: FastAPI-Skeleton, build123d, Template `spacer`, tolerance.py,
+      validate.py, export.py (STL/3MF/STEP), Tests, Dockerfile
+- [x] ADR-001 (Template-first)
+- [ ] Next.js-Skeleton: Supabase Auth, STL-Viewer (react-three-fiber)
+- [ ] Weitere 5 Phase-1-Archetypen
