@@ -13,6 +13,7 @@ import {
   type FieldMeta,
   type ToleranceProfile,
 } from "@fitpart/shared";
+import MeasureWizard from "@/components/MeasureWizard";
 import ParamSlider from "@/components/ParamSlider";
 import { loadProfile } from "@/lib/profile";
 
@@ -48,6 +49,13 @@ export default function CreatePage() {
   const switchArchetype = (next: Archetype) => {
     setArchetype(next);
     setParams(ARCHETYPE_UI[next].defaults);
+    setStl(null);
+  };
+
+  // Ergebnis aus dem Foto-/Mess-Wizard übernehmen (Archetyp + vorbefüllte Params).
+  const applyWizardResult = (next: Archetype, wizardParams: ParamValues) => {
+    setArchetype(next);
+    setParams(wizardParams);
     setStl(null);
   };
 
@@ -198,6 +206,8 @@ export default function CreatePage() {
           <h1 className="text-2xl font-bold">{t("title")}</h1>
           <p className="mt-1 text-sm text-zinc-500">{t("subtitle")}</p>
         </header>
+
+        <MeasureWizard onComplete={applyWizardResult} />
 
         <Link
           href="/calibrate"

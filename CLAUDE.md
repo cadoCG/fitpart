@@ -57,8 +57,12 @@ Briefing) – 6 Archetypen, Kalibrier-Coupon, kein Payment.
       (Loch-/Zapfen-/Nut-Leiter, eingravierte Masse), calibration.py
       (Offset-Berechnung), /calibration/ladders + /calibration/profile,
       /calibrate-Seite, Profil in localStorage → wird in /create angewandt
+- [x] Vision-Endpoint (/api/analyze: Foto → Claude Structured Output →
+      AnalyzeResult, Zod-validiert) + MeasureWizard in /create (Foto-Upload
+      mit Client-Downscale, Archetyp-Vorschlag + Alternativen, geführte
+      Messung der CRITICAL_DIMS aus packages/shared, Fragen statisch via
+      i18n). Braucht ANTHROPIC_API_KEY in apps/web/.env.local.
 - [ ] Supabase Auth (braucht Projekt-Credentials)
-- [ ] Vision-Endpoint (/api/analyze) + MeasureWizard
 - [ ] Drucker-Profile CRUD (Supabase, ersetzt localStorage)
 
 Goldene Referenzen regenerieren (nur bei bewusster Geometrie-Änderung):
