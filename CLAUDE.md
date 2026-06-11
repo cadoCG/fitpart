@@ -62,8 +62,14 @@ Briefing) – 6 Archetypen, Kalibrier-Coupon, kein Payment.
       mit Client-Downscale, Archetyp-Vorschlag + Alternativen, geführte
       Messung der CRITICAL_DIMS aus packages/shared, Fragen statisch via
       i18n). Braucht ANTHROPIC_API_KEY in apps/web/.env.local.
+- [x] 3MF-Export mit Druckempfehlung: print_rec pro Template (Material/
+      Ausrichtung/Infill, landet als 3MF-Metadaten), Empfehlungs-Panel +
+      3MF/STL-Download in /create, Vision-Hinweis wird durchgereicht
+- [x] Rate-Limit auf /api/analyze (in-memory sliding window pro IP,
+      5/min + 30/h; bei Skalierung auf Redis/Upstash umziehen)
 - [ ] Supabase Auth (braucht Projekt-Credentials)
 - [ ] Drucker-Profile CRUD (Supabase, ersetzt localStorage)
+- [ ] Deploy: Vercel + CAD-Container auf VPS (nginx, cad.fitpart.app)
 
 Goldene Referenzen regenerieren (nur bei bewusster Geometrie-Änderung):
 `services/cad/.venv/bin/python services/cad/scripts/make_golden.py`

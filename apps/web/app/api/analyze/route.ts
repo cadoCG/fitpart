@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import { AnalyzeResult, ARCHETYPES, ARCHETYPE_UI } from "@fitpart/shared";
+import { checkRateLimit, clientIp } from "@/lib/rateLimit";
 
 /**
  * Foto → Claude (Vision, Structured Output) → Archetyp-Vorschlag.
@@ -86,7 +87,23 @@ const OUTPUT_SCHEMA = {
   },
 } as const;
 
+// Jeder Aufruf kostet einen Claude-Vision-Call – daher knappes Limit pro IP.
+const RATE_WINDOWS = [
+  { limit: 5, windowMs: 60_000 }, // 5 / Minute
+  { limit: 30, windowMs: 60 * 60_000 }, // 30 / Stunde
+];
+
 export async function POST(req: NextRequest) {
+  const rate = checkRateLimit(`analyze:${clientIp(req.headers)}`, RATE_WINDOWS);
+  if (!rate.ok) {
+    return NextResponse.json(
+      {
+        error: `Zu viele Analysen – bitte in ${rate.retryAfterSec} s erneut versuchen.`,
+      },
+      { status: 429, headers: { "Retry-After": String(rate.retryAfterSec) } },
+    );
+  }
+
   if (!process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json(
       { error: "ANTHROPIC_API_KEY ist nicht konfiguriert (.env.local)." },
