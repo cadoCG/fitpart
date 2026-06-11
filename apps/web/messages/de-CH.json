@@ -6,20 +6,54 @@
     "cta": "Teil erstellen"
   },
   "Create": {
-    "title": "Distanzhülse erstellen",
+    "title": "Teil erstellen",
     "subtitle": "Parameter anpassen – die Vorschau aktualisiert sich live.",
+    "archetype": "Bauteil-Typ",
+    "archetypes": {
+      "spacer": "Distanzhülse",
+      "wall_hook": "Wandhaken",
+      "l_bracket": "L-Winkel / Regalträger",
+      "pipe_clip": "Rohr-/Stangenclip",
+      "cable_clip": "Kabelclip",
+      "device_holder": "Gerätehalterung"
+    },
     "params": {
       "inner_d": "Innendurchmesser (Schraube/Welle)",
       "outer_d": "Aussendurchmesser",
       "height": "Höhe",
-      "fit": "Passung der Bohrung",
-      "unit_mm": "mm"
+      "fit": "Passung",
+      "unit_mm": "mm",
+      "hook_depth": "Hakenspalt (Objektdicke)",
+      "width": "Breite",
+      "thickness": "Materialdicke",
+      "back_height": "Höhe Rückplatte",
+      "lip_height": "Höhe Lippe",
+      "screw_d": "Schraubendurchmesser",
+      "countersink": "Senkung für Senkkopf",
+      "leg_a": "Schenkel A (horizontal)",
+      "leg_b": "Schenkel B (vertikal)",
+      "rib": "Verrippung",
+      "holes_per_leg": "Löcher pro Schenkel",
+      "pipe_d": "Rohrdurchmesser (aussen)",
+      "wall": "Wandstärke",
+      "opening_ratio": "Öffnungsweite (Anteil ⌀)",
+      "cable_d": "Kabeldurchmesser",
+      "channels": "Anzahl Kanäle",
+      "depth": "Tiefe (entlang Kabel)",
+      "mount": "Montage",
+      "device_w": "Objektbreite",
+      "device_d": "Objekttiefe",
+      "wall_mount": "Wandmontage (Schraublöcher)"
     },
     "fit": {
       "press": "Press (kein Spiel)",
       "snug": "Saugend",
       "sliding": "Gleitend",
       "loose": "Locker"
+    },
+    "options": {
+      "screw": "Schraube",
+      "pad": "Klebepad"
     },
     "generating": "Generiere …",
     "download": "STL herunterladen",

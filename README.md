@@ -37,9 +37,12 @@ CAD-Service alternativ via Docker: `docker compose -f infra/docker-compose.yml u
 
 ## Stand
 
-**Phase 0 (Fundament)** umgesetzt und Ende-zu-Ende verifiziert:
-CAD-Service mit Archetyp `spacer` (Distanzhülse), Toleranz-Engine,
-manifold-Validierung, STL/3MF/STEP-Export, Tests + goldenes Referenzteil,
-Dockerfile – plus Next.js-App mit `/create` (Param-Slider, debounced
-Live-Regenerate, react-three-fiber-STL-Viewer, Download). Nächste Schritte:
-Supabase Auth und die übrigen 5 Phase-1-Archetypen (siehe `CLAUDE.md`).
+**Phase 0 (Fundament)** und die **Phase-1-Archetypen** sind umgesetzt und
+Ende-zu-Ende verifiziert: CAD-Service mit allen 6 MVP-Archetypen
+(Distanzhülse, Wandhaken, L-Winkel, Rohrclip, Kabelclip, Gerätehalterung),
+Toleranz-Engine, manifold-Validierung, STL/3MF/STEP-Export, 39 Tests +
+goldene Referenzteile, Dockerfile – plus Next.js-App mit `/create`
+(Archetyp-Auswahl, dynamisches Formular aus geteilten UI-Metadaten,
+debounced Live-Regenerate, react-three-fiber-STL-Viewer, Download).
+Nächste Schritte: Vision-Endpoint + MeasureWizard, Kalibrier-Coupon,
+Supabase Auth (siehe `CLAUDE.md`).

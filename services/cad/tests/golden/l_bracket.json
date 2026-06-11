@@ -1,0 +1,14 @@
+{
+  "params": {
+    "leg_a": 60.0,
+    "leg_b": 60.0,
+    "width": 25.0
+  },
+  "properties": {
+    "volume": 13077.453,
+    "area": 8039.351,
+    "size_x": 60.0,
+    "size_y": 25.0,
+    "size_z": 60.0
+  }
+}

@@ -3,7 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
-import { FitClass, SpacerParams } from "@fitpart/shared";
+import {
+  ARCHETYPES,
+  ARCHETYPE_SCHEMAS,
+  ARCHETYPE_UI,
+  FitClass,
+  type Archetype,
+  type FieldMeta,
+} from "@fitpart/shared";
 import ParamSlider from "@/components/ParamSlider";
 
 // three/WebGL nur im Browser laden.
@@ -13,29 +20,31 @@ const StlViewer = dynamic(() => import("@/components/StlViewer"), {
 
 const DEBOUNCE_MS = 400;
 
-type Params = {
-  inner_d: number;
-  outer_d: number;
-  height: number;
-  fit: FitClass;
-};
-
-const DEFAULTS: Params = { inner_d: 5, outer_d: 10, height: 8, fit: "sliding" };
+type ParamValues = Record<string, number | string | boolean>;
 
 export default function CreatePage() {
   const t = useTranslations("Create");
-  const [params, setParams] = useState<Params>(DEFAULTS);
+  const [archetype, setArchetype] = useState<Archetype>("spacer");
+  const [params, setParams] = useState<ParamValues>(
+    ARCHETYPE_UI.spacer.defaults,
+  );
   const [stl, setStl] = useState<ArrayBuffer | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  const set = (patch: Partial<Params>) =>
-    setParams((p) => ({ ...p, ...patch }));
+  const set = (key: string, value: number | string | boolean) =>
+    setParams((p) => ({ ...p, [key]: value }));
+
+  const switchArchetype = (next: Archetype) => {
+    setArchetype(next);
+    setParams(ARCHETYPE_UI[next].defaults);
+    setStl(null);
+  };
 
   // Debounced Live-Regenerate bei jeder Parameteränderung.
   useEffect(() => {
-    const parsed = SpacerParams.safeParse(params);
+    const parsed = ARCHETYPE_SCHEMAS[archetype].safeParse(params);
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? "Ungültige Parameter");
       return;
@@ -52,7 +61,7 @@ export default function CreatePage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            archetype: "spacer",
+            archetype,
             params: parsed.data,
             format: "stl",
           }),
@@ -77,64 +86,127 @@ export default function CreatePage() {
 
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params]);
+  }, [archetype, params]);
 
   const download = () => {
     if (!stl) return;
     const url = URL.createObjectURL(new Blob([stl], { type: "model/stl" }));
     const a = document.createElement("a");
     a.href = url;
-    a.download = "spacer.stl";
+    a.download = `${archetype}.stl`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
+  const renderField = (field: FieldMeta) => {
+    const value = params[field.key];
+    switch (field.kind) {
+      case "slider":
+        return (
+          <ParamSlider
+            key={field.key}
+            label={t(`params.${field.key}`)}
+            value={Number(value)}
+            min={field.min}
+            max={field.max}
+            step={field.step ?? 0.1}
+            onChange={(v) => set(field.key, v)}
+          />
+        );
+      case "int":
+        return (
+          <ParamSlider
+            key={field.key}
+            label={t(`params.${field.key}`)}
+            value={Number(value)}
+            min={field.min}
+            max={field.max}
+            step={1}
+            unit=""
+            onChange={(v) => set(field.key, Math.round(v))}
+          />
+        );
+      case "boolean":
+        return (
+          <label key={field.key} className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={Boolean(value)}
+              onChange={(e) => set(field.key, e.target.checked)}
+              className="size-4 accent-zinc-900"
+            />
+            <span className="text-sm font-medium text-zinc-700">
+              {t(`params.${field.key}`)}
+            </span>
+          </label>
+        );
+      case "fit":
+        return (
+          <label key={field.key} className="block">
+            <span className="mb-1 block text-sm font-medium text-zinc-700">
+              {t("params.fit")}
+            </span>
+            <select
+              value={String(value)}
+              onChange={(e) => set(field.key, e.target.value)}
+              className="w-full rounded border border-zinc-300 bg-white px-3 py-2 text-sm"
+            >
+              {FitClass.options.map((fit) => (
+                <option key={fit} value={fit}>
+                  {t(`fit.${fit}`)}
+                </option>
+              ))}
+            </select>
+          </label>
+        );
+      case "select":
+        return (
+          <label key={field.key} className="block">
+            <span className="mb-1 block text-sm font-medium text-zinc-700">
+              {t(`params.${field.key}`)}
+            </span>
+            <select
+              value={String(value)}
+              onChange={(e) => set(field.key, e.target.value)}
+              className="w-full rounded border border-zinc-300 bg-white px-3 py-2 text-sm"
+            >
+              {field.options.map((opt) => (
+                <option key={opt} value={opt}>
+                  {t(`options.${opt}`)}
+                </option>
+              ))}
+            </select>
+          </label>
+        );
+    }
+  };
+
   return (
     <main className="mx-auto grid min-h-screen max-w-5xl gap-8 px-6 py-10 md:grid-cols-[20rem_1fr]">
-      <section className="space-y-6">
+      <section className="space-y-5">
         <header>
           <h1 className="text-2xl font-bold">{t("title")}</h1>
           <p className="mt-1 text-sm text-zinc-500">{t("subtitle")}</p>
         </header>
 
-        <ParamSlider
-          label={t("params.inner_d")}
-          value={params.inner_d}
-          min={2}
-          max={50}
-          onChange={(v) => set({ inner_d: v })}
-        />
-        <ParamSlider
-          label={t("params.outer_d")}
-          value={params.outer_d}
-          min={4}
-          max={80}
-          onChange={(v) => set({ outer_d: v })}
-        />
-        <ParamSlider
-          label={t("params.height")}
-          value={params.height}
-          min={1}
-          max={100}
-          onChange={(v) => set({ height: v })}
-        />
-
         <label className="block">
           <span className="mb-1 block text-sm font-medium text-zinc-700">
-            {t("params.fit")}
+            {t("archetype")}
           </span>
           <select
-            value={params.fit}
-            onChange={(e) => set({ fit: e.target.value as FitClass })}
-            className="w-full rounded border border-zinc-300 bg-white px-3 py-2 text-sm"
+            value={archetype}
+            onChange={(e) => switchArchetype(e.target.value as Archetype)}
+            className="w-full rounded border border-zinc-300 bg-white px-3 py-2 text-sm font-medium"
           >
-            {FitClass.options.map((fit) => (
-              <option key={fit} value={fit}>
-                {t(`fit.${fit}`)}
+            {ARCHETYPES.map((a) => (
+              <option key={a} value={a}>
+                {t(`archetypes.${a}`)}
               </option>
             ))}
           </select>
         </label>
+
+        {ARCHETYPE_UI[archetype].fields.map(renderField)}
 
         {error && (
           <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
@@ -151,7 +223,7 @@ export default function CreatePage() {
         </button>
       </section>
 
-      <section className="flex min-h-[24rem] flex-col overflow-hidden rounded-xl border border-zinc-200">
+      <section className="flex min-h-[24rem] flex-col overflow-hidden rounded-xl border border-zinc-200 md:sticky md:top-10 md:max-h-[calc(100vh-5rem)]">
         {stl ? (
           <StlViewer stl={stl} />
         ) : (

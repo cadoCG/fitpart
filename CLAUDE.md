@@ -50,5 +50,13 @@ Briefing) – 6 Archetypen, Kalibrier-Coupon, kein Payment.
       OrbitControls), Param-Slider mit debounced Live-Regenerate,
       /api/cad/generate-Proxy, next-intl (de-CH), PWA-Manifest
 - [x] Ende-zu-Ende-Smoke-Test: Params → STL ansehen → Download
+- [x] Alle 6 Phase-1-Archetypen: spacer, wall_hook, l_bracket, pipe_clip,
+      cable_clip, device_holder (je Pydantic-Template + Zod-Spiegel + Tests +
+      golden + Spez in docs/archetypes/); /create mit Archetyp-Auswahl
 - [ ] Supabase Auth (braucht Projekt-Credentials)
-- [ ] Weitere 5 Phase-1-Archetypen
+- [ ] Vision-Endpoint (/api/analyze) + MeasureWizard
+- [ ] Kalibrier-Coupon-Template + CalibrationFlow-UI
+- [ ] Drucker-Profile CRUD
+
+Goldene Referenzen regenerieren (nur bei bewusster Geometrie-Änderung):
+`services/cad/.venv/bin/python services/cad/scripts/make_golden.py`

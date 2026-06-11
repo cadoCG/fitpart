@@ -1,0 +1,13 @@
+{
+  "params": {
+    "cable_d": 6.0,
+    "channels": 2
+  },
+  "properties": {
+    "volume": 1239.248,
+    "area": 1345.466,
+    "size_x": 28.8,
+    "size_y": 10.0,
+    "size_z": 10.15
+  }
+}
