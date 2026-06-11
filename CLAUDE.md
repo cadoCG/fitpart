@@ -67,8 +67,15 @@ Briefing) – 6 Archetypen, Kalibrier-Coupon, kein Payment.
       3MF/STL-Download in /create, Vision-Hinweis wird durchgereicht
 - [x] Rate-Limit auf /api/analyze (in-memory sliding window pro IP,
       5/min + 30/h; bei Skalierung auf Redis/Upstash umziehen)
-- [ ] Supabase Auth (braucht Projekt-Credentials)
-- [ ] Drucker-Profile CRUD (Supabase, ersetzt localStorage)
+- [x] Supabase Auth (Magic Link via @supabase/ssr: Browser-/Server-Client,
+      Middleware-Session-Refresh mit getClaims, /login, /auth/callback
+      (PKCE), AccountBar in /create)
+- [x] Drucker-Profile CRUD: Tabelle printer_profiles (RLS owner-Policies,
+      Least-Privilege-Grants – Migrationen in supabase/migrations/),
+      /profiles-Seite (aktiv/umbenennen/löschen), /calibrate speichert
+      angemeldet in die Cloud, localStorage bleibt anonymer Fallback.
+      Hinweis: 20260611190044 wurde leer gepusht, Inhalt steckt in
+      20260611190318_tighten_grants_v2.
 - [ ] Deploy: Vercel + CAD-Container auf VPS (nginx, cad.fitpart.app)
 
 Goldene Referenzen regenerieren (nur bei bewusster Geometrie-Änderung):

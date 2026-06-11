@@ -13,9 +13,10 @@ import {
   type FieldMeta,
   type ToleranceProfile,
 } from "@fitpart/shared";
+import AccountBar from "@/components/AccountBar";
 import MeasureWizard from "@/components/MeasureWizard";
 import ParamSlider from "@/components/ParamSlider";
-import { loadProfile } from "@/lib/profile";
+import { loadActiveTolerance } from "@/lib/profiles";
 
 // three/WebGL nur im Browser laden.
 const StlViewer = dynamic(() => import("@/components/StlViewer"), {
@@ -40,9 +41,10 @@ export default function CreatePage() {
   const [photoNotes, setPhotoNotes] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  // Kalibrier-Profil (falls vorhanden) laden und auf alle Generierungen anwenden.
+  // Kalibrier-Profil laden (Cloud vor localStorage) und auf alle
+  // Generierungen anwenden.
   useEffect(() => {
-    setProfile(loadProfile());
+    void loadActiveTolerance().then(setProfile);
   }, []);
 
   const set = (key: string, value: number | string | boolean) =>
@@ -245,6 +247,8 @@ export default function CreatePage() {
           <h1 className="text-2xl font-bold">{t("title")}</h1>
           <p className="mt-1 text-sm text-zinc-500">{t("subtitle")}</p>
         </header>
+
+        <AccountBar />
 
         <MeasureWizard onComplete={applyWizardResult} />
 

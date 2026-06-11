@@ -148,6 +148,38 @@
       "device_d": "Tiefe des Geräts an der dicksten Stelle messen."
     }
   },
+  "Auth": {
+    "title": "Anmelden",
+    "subtitle": "Passwortlos per E-Mail – wir schicken dir einen Anmelde-Link.",
+    "emailPlaceholder": "deine@email.ch",
+    "send": "Anmelde-Link senden",
+    "sending": "Sende …",
+    "sent": "Link verschickt an {email} – schau in deinen Posteingang und klicke auf den Link.",
+    "errorSend": "Senden fehlgeschlagen",
+    "errorLink": "Der Anmelde-Link ist ungültig oder abgelaufen – bitte neu anfordern.",
+    "back": "Zurück zum Erstellen",
+    "loginCta": "Anmelden, um Drucker-Profile zu speichern",
+    "profiles": "Profile",
+    "logout": "Abmelden"
+  },
+  "Profiles": {
+    "title": "Drucker-Profile",
+    "subtitle": "Ein Profil pro Drucker + Material. Das aktive Profil wird auf alle generierten Teile angewandt.",
+    "back": "Zurück zum Erstellen",
+    "needLogin": "Profile brauchen ein Konto.",
+    "loginLink": "Jetzt anmelden",
+    "empty": "Noch keine Profile.",
+    "calibrateLink": "Ersten Drucker kalibrieren",
+    "newProfile": "Weiteren Drucker kalibrieren",
+    "setActive": "Als aktives Profil verwenden",
+    "active": "Aktiv",
+    "delete": "Profil löschen",
+    "deleteConfirm": "Profil «{name}» wirklich löschen?",
+    "nozzle": "Düse",
+    "hole": "Bohrung",
+    "shaft": "Zapfen",
+    "slot": "Nut"
+  },
   "Calibrate": {
     "back": "Zurück zum Erstellen",
     "title": "Drucker kalibrieren",

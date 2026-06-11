@@ -8,7 +8,7 @@ import {
   SLOT_LADDER_MM,
   type ToleranceProfile,
 } from "@fitpart/shared";
-import { saveProfile } from "@/lib/profile";
+import { saveCalibration } from "@/lib/profiles";
 
 type Answers = {
   snug_hole_mm: number | null;
@@ -86,7 +86,8 @@ export default function CalibrationFlow() {
         body: JSON.stringify(answers),
       });
       const p = (await res.json()) as ToleranceProfile;
-      saveProfile(p);
+      // Angemeldet → neues aktives Cloud-Profil; immer auch localStorage.
+      await saveCalibration(p);
       setProfile(p);
     } finally {
       setBusy(false);
