@@ -5,7 +5,9 @@ services:
       context: ../services/cad
     image: fitpart-cad:dev
     ports:
-      - "8000:8000"
+      # Nur Loopback: auf dem VPS erreicht den Service ausschliesslich nginx
+      # (TLS + Rate-Limit); lokal bleibt http://localhost:8000 nutzbar.
+      - "127.0.0.1:8000:8000"
     restart: unless-stopped
     environment:
       - PYTHONUNBUFFERED=1
