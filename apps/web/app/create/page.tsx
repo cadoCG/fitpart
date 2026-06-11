@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import {
   ARCHETYPES,
@@ -10,8 +11,10 @@ import {
   FitClass,
   type Archetype,
   type FieldMeta,
+  type ToleranceProfile,
 } from "@fitpart/shared";
 import ParamSlider from "@/components/ParamSlider";
+import { loadProfile } from "@/lib/profile";
 
 // three/WebGL nur im Browser laden.
 const StlViewer = dynamic(() => import("@/components/StlViewer"), {
@@ -31,7 +34,13 @@ export default function CreatePage() {
   const [stl, setStl] = useState<ArrayBuffer | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [profile, setProfile] = useState<ToleranceProfile | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+
+  // Kalibrier-Profil (falls vorhanden) laden und auf alle Generierungen anwenden.
+  useEffect(() => {
+    setProfile(loadProfile());
+  }, []);
 
   const set = (key: string, value: number | string | boolean) =>
     setParams((p) => ({ ...p, [key]: value }));
@@ -63,6 +72,7 @@ export default function CreatePage() {
           body: JSON.stringify({
             archetype,
             params: parsed.data,
+            ...(profile ? { tolerance_profile: profile } : {}),
             format: "stl",
           }),
           signal: ctrl.signal,
@@ -86,7 +96,7 @@ export default function CreatePage() {
 
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [archetype, params]);
+  }, [archetype, params, profile]);
 
   const download = () => {
     if (!stl) return;
@@ -188,6 +198,17 @@ export default function CreatePage() {
           <h1 className="text-2xl font-bold">{t("title")}</h1>
           <p className="mt-1 text-sm text-zinc-500">{t("subtitle")}</p>
         </header>
+
+        <Link
+          href="/calibrate"
+          className={`block rounded-lg border px-3 py-2 text-sm transition ${
+            profile?.calibrated
+              ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:border-emerald-400"
+              : "border-amber-200 bg-amber-50 text-amber-800 hover:border-amber-400"
+          }`}
+        >
+          {profile?.calibrated ? t("calibrated") : t("notCalibrated")}
+        </Link>
 
         <label className="block">
           <span className="mb-1 block text-sm font-medium text-zinc-700">

@@ -13,5 +13,6 @@ from . import l_bracket  # noqa: F401
 from . import pipe_clip  # noqa: F401
 from . import cable_clip  # noqa: F401
 from . import device_holder  # noqa: F401
+from . import calibration_coupon  # noqa: F401
 
 __all__ = ["REGISTRY", "Template", "register"]

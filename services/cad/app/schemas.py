@@ -26,3 +26,13 @@ class TemplateInfo(BaseModel):
 class ValidateResponse(BaseModel):
     archetype: str
     validation: ValidationResult
+
+
+class LaddersResponse(BaseModel):
+    """Leiter-Stufen + Referenzmasse für die Kalibrier-UI."""
+
+    hole_mm: list[float]
+    shaft_mm: list[float]
+    slot_mm: list[float]
+    reference_pin_mm: float
+    reference_tab_mm: float

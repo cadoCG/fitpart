@@ -13,6 +13,11 @@ from pathlib import Path
 
 from build123d import Mesher, Part, Unit, export_step, export_stl
 
+# Tessellierungs-Toleranz für STL/3MF: 0,05 mm ist deutlich feiner als die
+# FDM-Auflösung (~0,1 mm Düse), hält aber die Dateigrösse klein – die
+# Default-Toleranz (0,001 mm) erzeugt für Textgravuren riesige Meshes.
+EXPORT_TOLERANCE_MM = 0.05
+
 
 class ExportFormat(str, Enum):
     STL = "stl"
@@ -42,7 +47,7 @@ def export_part(
         out = Path(tmp) / f"part.{fmt.value}"
 
         if fmt is ExportFormat.STL:
-            export_stl(part, out)
+            export_stl(part, out, tolerance=EXPORT_TOLERANCE_MM)
         elif fmt is ExportFormat.STEP:
             export_step(part, out, unit=Unit.MM)
         elif fmt is ExportFormat.THREEMF:

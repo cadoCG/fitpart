@@ -57,6 +57,35 @@ def test_generate_unknown_archetype():
     assert r.status_code == 404
 
 
+def test_calibration_ladders():
+    r = client.get("/calibration/ladders")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["hole_mm"] == [4.8, 4.9, 5.0, 5.1, 5.2, 5.4, 5.6]
+    assert body["reference_pin_mm"] == 5.0
+
+
+def test_calibration_profile():
+    r = client.post(
+        "/calibration/profile",
+        json={"snug_hole_mm": 5.2, "snug_shaft_mm": 4.8, "nozzle_mm": 0.4},
+    )
+    assert r.status_code == 200
+    body = r.json()
+    assert body["hole_offset_mm"] == 0.2
+    assert body["shaft_offset_mm"] == 0.2
+    assert body["calibrated"] is True
+
+
+def test_generate_calibration_coupon():
+    r = client.post(
+        "/generate",
+        json={"archetype": "calibration_coupon", "params": {"labels": False}, "format": "stl"},
+    )
+    assert r.status_code == 200
+    assert r.headers["content-type"] == "model/stl"
+
+
 def test_generate_invalid_params():
     r = client.post(
         "/generate",

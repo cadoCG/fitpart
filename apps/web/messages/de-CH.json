@@ -59,6 +59,35 @@
     "download": "STL herunterladen",
     "viewerHint": "Ziehen zum Drehen · Scrollen zum Zoomen",
     "errorGenerate": "Generierung fehlgeschlagen",
-    "noPreview": "Noch keine Vorschau"
+    "noPreview": "Noch keine Vorschau",
+    "calibrated": "✓ Drucker kalibriert – Toleranzen werden angewandt",
+    "notCalibrated": "⚠ Noch nicht kalibriert – jetzt Coupon drucken für passgenaue Teile"
+  },
+  "Calibrate": {
+    "back": "Zurück zum Erstellen",
+    "title": "Drucker kalibrieren",
+    "subtitle": "Einmal pro Drucker + Material. Danach kompensiert FitPart Schrumpf und Toleranz automatisch.",
+    "step1": {
+      "title": "1. Kalibrier-Coupon drucken",
+      "body": "Lade den Coupon herunter und drucke ihn mit dem Drucker und Material, das du kalibrieren willst (~30 Min, <10 g). Keine Stützen, 0,2-mm-Schicht.",
+      "download": "Coupon herunterladen (STL)"
+    },
+    "step2": {
+      "title": "2. Passungen ablesen",
+      "body": "Nimm eine 5,00-mm-Referenz (Prüfstift oder M5-Schraube) und tippe an, welche Stufe satt – nicht zu locker, nicht klemmend – sitzt. Felder überspringen ist ok.",
+      "hole": "Loch-Leiter: Welches Loch sitzt saugend auf der 5-mm-Referenz?",
+      "shaft": "Zapfen-Leiter: Welcher Zapfen sitzt saugend in der 5-mm-Referenzbohrung?",
+      "slot": "Nut-Leiter: Welche Nut passt saugend auf den 2-mm-Referenzsteg?",
+      "nozzle": "Düsendurchmesser (mm)",
+      "save": "Profil speichern",
+      "saving": "Speichere …"
+    },
+    "result": {
+      "title": "Kalibrierung gespeichert",
+      "hole": "Bohrungs-Offset",
+      "shaft": "Zapfen-Offset",
+      "slot": "Nut-Offset",
+      "applied": "Wird ab jetzt auf alle generierten Teile angewandt."
+    }
   }
 }

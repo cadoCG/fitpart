@@ -53,10 +53,13 @@ Briefing) – 6 Archetypen, Kalibrier-Coupon, kein Payment.
 - [x] Alle 6 Phase-1-Archetypen: spacer, wall_hook, l_bracket, pipe_clip,
       cable_clip, device_holder (je Pydantic-Template + Zod-Spiegel + Tests +
       golden + Spez in docs/archetypes/); /create mit Archetyp-Auswahl
+- [x] Kalibrier-Coupon-Template + CalibrationFlow-UI: calibration_coupon
+      (Loch-/Zapfen-/Nut-Leiter, eingravierte Masse), calibration.py
+      (Offset-Berechnung), /calibration/ladders + /calibration/profile,
+      /calibrate-Seite, Profil in localStorage → wird in /create angewandt
 - [ ] Supabase Auth (braucht Projekt-Credentials)
 - [ ] Vision-Endpoint (/api/analyze) + MeasureWizard
-- [ ] Kalibrier-Coupon-Template + CalibrationFlow-UI
-- [ ] Drucker-Profile CRUD
+- [ ] Drucker-Profile CRUD (Supabase, ersetzt localStorage)
 
 Goldene Referenzen regenerieren (nur bei bewusster Geometrie-Änderung):
 `services/cad/.venv/bin/python services/cad/scripts/make_golden.py`

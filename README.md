@@ -44,5 +44,8 @@ Toleranz-Engine, manifold-Validierung, STL/3MF/STEP-Export, 39 Tests +
 goldene Referenzteile, Dockerfile – plus Next.js-App mit `/create`
 (Archetyp-Auswahl, dynamisches Formular aus geteilten UI-Metadaten,
 debounced Live-Regenerate, react-three-fiber-STL-Viewer, Download).
-Nächste Schritte: Vision-Endpoint + MeasureWizard, Kalibrier-Coupon,
-Supabase Auth (siehe `CLAUDE.md`).
+Dazu der **Kalibrier-Coupon** (USP/Moat): druckbares Loch-/Zapfen-/Nut-Leiter-
+Testteil, `/calibrate`-Flow, der die abgelesenen Passungen in featureweise
+Drucker-Offsets übersetzt und automatisch auf alle generierten Teile anwendet.
+Nächste Schritte: Vision-Endpoint + MeasureWizard, Supabase Auth
+(siehe `CLAUDE.md`).
