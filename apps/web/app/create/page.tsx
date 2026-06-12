@@ -9,6 +9,7 @@ import {
   ARCHETYPE_SCHEMAS,
   ARCHETYPE_UI,
   FitClass,
+  VIEWER_DIMS,
   type Archetype,
   type FieldMeta,
   type ToleranceProfile,
@@ -237,6 +238,26 @@ export default function CreatePage() {
 
   const calibrated = Boolean(profile?.calibrated);
 
+  // Bemassung direkt am 3D-Modell: nur Parameter mit exakter Bounding-Box-
+  // Entsprechung (VIEWER_DIMS); Ranges/Steps kommen aus der UI-Registry.
+  const viewerDims = (VIEWER_DIMS[archetype] ?? []).flatMap(
+    ({ param, axis }) => {
+      const field = ARCHETYPE_UI[archetype].fields.find((f) => f.key === param);
+      if (!field || (field.kind !== "slider" && field.kind !== "int")) return [];
+      return [
+        {
+          param,
+          axis,
+          label: t(`params.${param}`),
+          value: Number(params[param]),
+          min: field.min,
+          max: field.max,
+          step: field.kind === "int" ? 1 : (field.step ?? 0.1),
+        },
+      ];
+    },
+  );
+
   return (
     <div style={{ minHeight: "100%", background: "var(--surface-page)" }}>
       <main className="fpk-werkbank">
@@ -337,7 +358,7 @@ export default function CreatePage() {
           >
             <div className="absolute inset-0">
               {stl ? (
-                <StlViewer stl={stl} />
+                <StlViewer stl={stl} dims={viewerDims} onDimChange={set} />
               ) : (
                 <div
                   className="flex h-full items-center justify-center"
