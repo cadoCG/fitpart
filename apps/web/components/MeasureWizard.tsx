@@ -1,25 +1,24 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Camera, CircleCheck, Lightbulb, Ruler, X } from "lucide-react";
+import { Camera, Lightbulb, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   ARCHETYPE_CONFIDENCE_THRESHOLD,
   ARCHETYPE_UI,
-  CRITICAL_DIMS,
   type AnalyzeResult,
   type Archetype,
 } from "@fitpart/shared";
-import { Button, Panel, ProgressBar, Stepper, TypeCard } from "@/components/ui";
+import { Button, Panel, Stepper, TypeCard } from "@/components/ui";
 import { useUser } from "@/lib/useUser";
 import { submitPartRequest } from "@/lib/partRequest";
 
 /**
- * Geführter Einstieg als Vollbild-Stepper (Foto → Bauteil-Typ → Messen),
- * Muster: Import-Flows à la QuickBooks/ElevenLabs. Foto → /api/analyze →
- * Archetyp-Vorschlag als Karten → kritische Masse Schritt für Schritt
- * (Fragen statisch aus i18n, nicht vom LLM). Am Ende werden Defaults +
- * geschätzte + gemessene Werte gemerged und an /create übergeben.
+ * Geführter Einstieg als Vollbild-Stepper (Foto → Bauteil-Typ), Muster:
+ * Import-Flows à la QuickBooks/ElevenLabs. Foto → /api/analyze → Archetyp-
+ * Vorschlag als Karten → Übergabe an /create: Defaults + Vision-Schätzungen
+ * befüllen die Parameter vor, GEMESSEN wird direkt am 3D-Modell (Bemassungs-
+ * Pills/Griffe im Viewer) statt über abstrakte Textfragen.
  */
 
 type ParamValues = Record<string, number | string | boolean>;
@@ -32,7 +31,7 @@ type Props = {
   ) => void;
 };
 
-type Phase = "upload" | "analyzing" | "suggest" | "nomatch" | "measure";
+type Phase = "upload" | "analyzing" | "suggest" | "nomatch";
 
 const MAX_EDGE_PX = 1568;
 
@@ -68,9 +67,6 @@ function sliderRange(archetype: Archetype, param: string) {
 const clamp = (v: number, min: number, max: number) =>
   Math.min(max, Math.max(min, v));
 
-// Zähl-Parameter (Stückzahl statt Länge) – kein "mm"-Suffix im Messfeld.
-const COUNT_PARAMS = new Set(["channels", "holes_per_leg"]);
-
 export default function MeasureWizard({ onComplete }: Props) {
   const t = useTranslations("Measure");
   const tc = useTranslations("Create");
@@ -82,8 +78,6 @@ export default function MeasureWizard({ onComplete }: Props) {
   const [dragOver, setDragOver] = useState(false);
   const [result, setResult] = useState<AnalyzeResult | null>(null);
   const [archetype, setArchetype] = useState<Archetype>("spacer");
-  const [stepIndex, setStepIndex] = useState(0);
-  const [measured, setMeasured] = useState<Record<string, number>>({});
   // "Kein passender Treffer"-Anfrage (ADR-002).
   const [reqDescription, setReqDescription] = useState("");
   const [reqEmail, setReqEmail] = useState("");
@@ -100,8 +94,6 @@ export default function MeasureWizard({ onComplete }: Props) {
     setPhoto(null);
     setResult(null);
     setError(null);
-    setStepIndex(0);
-    setMeasured({});
     setReqDescription("");
     setReqEmail("");
     setSharePhoto(false);
@@ -164,21 +156,6 @@ export default function MeasureWizard({ onComplete }: Props) {
     return out;
   };
 
-  const steps = CRITICAL_DIMS[archetype];
-  const currentParam = steps[stepIndex];
-
-  const startMeasure = () => {
-    const derived = derivedFor(archetype);
-    const initial: Record<string, number> = {};
-    for (const param of CRITICAL_DIMS[archetype]) {
-      initial[param] =
-        derived[param] ?? Number(ARCHETYPE_UI[archetype].defaults[param]);
-    }
-    setMeasured(initial);
-    setStepIndex(0);
-    setPhase("measure");
-  };
-
   // Zurück auf den Foto-Schritt (verwirft Analyse + offene Anfrage).
   const resetToUpload = () => {
     setPhase("upload");
@@ -214,11 +191,11 @@ export default function MeasureWizard({ onComplete }: Props) {
     }
   };
 
-  const finish = (finalMeasured: Record<string, number>) => {
+  /** Übergabe an /create: Defaults + Vision-Schätzungen; gemessen wird am Modell. */
+  const finish = () => {
     const params: ParamValues = {
       ...ARCHETYPE_UI[archetype].defaults,
       ...derivedFor(archetype),
-      ...finalMeasured,
     };
     const a = archetype;
     const notes = result?.notes_de || undefined;
@@ -226,12 +203,7 @@ export default function MeasureWizard({ onComplete }: Props) {
     onComplete(a, params, notes);
   };
 
-  const stepperIndex =
-    phase === "measure"
-      ? 2
-      : phase === "suggest" || phase === "nomatch"
-        ? 1
-        : 0;
+  const stepperIndex = phase === "suggest" || phase === "nomatch" ? 1 : 0;
 
   // ---- Eintrittskarte in der Sidebar ----
   if (!open) {
@@ -276,7 +248,7 @@ export default function MeasureWizard({ onComplete }: Props) {
           style={{ maxWidth: "var(--container-narrow)" }}
         >
           <Stepper
-            steps={[t("stepPhoto"), t("stepType"), t("stepMeasure")]}
+            steps={[t("stepPhoto"), t("stepType")]}
             current={stepperIndex}
           />
           <button
@@ -467,8 +439,8 @@ export default function MeasureWizard({ onComplete }: Props) {
               >
                 {t("replacePhoto")}
               </Button>
-              <Button block onClick={startMeasure}>
-                {t("startMeasure")} →
+              <Button block onClick={finish}>
+                {t("applyToModel")} →
               </Button>
             </div>
           </section>
@@ -635,123 +607,6 @@ export default function MeasureWizard({ onComplete }: Props) {
           </section>
         )}
 
-        {/* Schritt 3: Messen */}
-        {phase === "measure" &&
-          (() => {
-            const range = sliderRange(archetype, currentParam);
-            const value = measured[currentParam] ?? 0;
-            const isLast = stepIndex === steps.length - 1;
-            return (
-              <section>
-                <p
-                  style={{
-                    font: "var(--type-body-sm)",
-                    fontWeight: 500,
-                    color: "var(--text-secondary)",
-                    margin: "0 0 var(--space-2)",
-                  }}
-                >
-                  {t("step", { current: stepIndex + 1, total: steps.length })} ·{" "}
-                  {tc(`archetypes.${archetype}`)}
-                </p>
-                <ProgressBar value={stepIndex + 1} max={steps.length} />
-
-                <div className="fpk-wizrow" style={{ marginTop: "var(--space-8)" }}>
-                  {photo && (
-                    <img src={`data:image/jpeg;base64,${photo}`} alt="" className="fpk-photo" />
-                  )}
-                  <div className="flex-1">
-                    <h1 style={{ font: "var(--type-h2)", margin: 0, textWrap: "pretty" }}>
-                      {t(`questions.${archetype}.${currentParam}`)}
-                    </h1>
-                    <p
-                      className="flex gap-2"
-                      style={{
-                        font: "var(--type-body-sm)",
-                        color: "var(--text-secondary)",
-                        margin: "var(--space-3) 0 var(--space-6)",
-                      }}
-                    >
-                      <Ruler size={16} strokeWidth={2} className="mt-0.5 shrink-0" aria-hidden />
-                      {t(`hints.${archetype}.${currentParam}`)}
-                    </p>
-
-                    <span className="inline-flex items-baseline" style={{ gap: "var(--space-2)" }}>
-                      <input
-                        type="number"
-                        className="fp-input fp-input--measure"
-                        style={{ width: 150 }}
-                        value={Number.isFinite(value) ? value : ""}
-                        min={range?.min}
-                        max={range?.max}
-                        step={range?.step}
-                        onChange={(e) =>
-                          setMeasured((m) => ({
-                            ...m,
-                            [currentParam]: Number(e.target.value),
-                          }))
-                        }
-                        autoFocus
-                      />
-                      {!COUNT_PARAMS.has(currentParam) && (
-                        <span
-                          style={{
-                            font: "var(--type-measure)",
-                            fontSize: "var(--text-lg)",
-                            color: "var(--text-tertiary)",
-                          }}
-                        >
-                          mm
-                        </span>
-                      )}
-                    </span>
-                    {range && (value < range.min || value > range.max) && (
-                      <p
-                        style={{
-                          font: "var(--type-body-sm)",
-                          color: "var(--status-warn)",
-                          margin: "var(--space-2) 0 0",
-                        }}
-                      >
-                        {t("rangeHint", { min: range.min, max: range.max })}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex" style={{ gap: "var(--space-2)", marginTop: "var(--space-8)" }}>
-                  <Button
-                    variant="secondary"
-                    onClick={() =>
-                      stepIndex === 0 ? setPhase("suggest") : setStepIndex((i) => i - 1)
-                    }
-                  >
-                    ← {t("back")}
-                  </Button>
-                  <Button
-                    block
-                    onClick={() => {
-                      const clamped = range ? clamp(value, range.min, range.max) : value;
-                      const next = { ...measured, [currentParam]: clamped };
-                      setMeasured(next);
-                      if (isLast) finish(next);
-                      else setStepIndex((i) => i + 1);
-                    }}
-                    disabled={!Number.isFinite(value) || value <= 0}
-                  >
-                    {isLast ? (
-                      <>
-                        {t("finish")}
-                        <CircleCheck size={16} strokeWidth={2.5} aria-hidden />
-                      </>
-                    ) : (
-                      `${t("next")} →`
-                    )}
-                  </Button>
-                </div>
-              </section>
-            );
-          })()}
       </main>
     </div>
   );
