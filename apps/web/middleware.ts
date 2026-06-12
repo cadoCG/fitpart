@@ -10,9 +10,18 @@ import { NextResponse, type NextRequest } from "next/server";
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
 
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  // Ohne Supabase-Config bleibt die App anonym nutzbar – kein Session-Refresh,
+  // aber auch kein 500 (MIDDLEWARE_INVOCATION_FAILED) auf allen Routen.
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return response;
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         getAll() {
@@ -32,7 +41,12 @@ export async function middleware(request: NextRequest) {
   );
 
   // Verifiziert die Signatur und stösst bei Bedarf den Token-Refresh an.
-  await supabase.auth.getClaims();
+  // Fehler hier dürfen die Seite nicht lahmlegen – die App ist anonym nutzbar.
+  try {
+    await supabase.auth.getClaims();
+  } catch {
+    // Session-Refresh fehlgeschlagen – ohne gültige Session weiter (anonym).
+  }
 
   return response;
 }
