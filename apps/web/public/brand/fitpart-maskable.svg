@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" fill="none">
+  <rect width="192" height="192" fill="#fbfbfc"/>
+  <!-- Mark zentriert in der inneren Safe-Zone (~62%), Knockout = Hintergrund -->
+  <g transform="translate(36,60) scale(0.8)" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M35 24 H65 V45 H86 V75 H65 V96 H35 V75 H14 V45 H35 Z" stroke="#df5c0c" stroke-width="9"/>
+    <path d="M85 24 H115 V45 H136 V75 H115 V96 H85 V75 H64 V45 H85 Z" stroke="#fbfbfc" stroke-width="18"/>
+    <path d="M85 24 H115 V45 H136 V75 H115 V96 H85 V75 H64 V45 H85 Z" stroke="#15171c" stroke-width="9"/>
+  </g>
+</svg>

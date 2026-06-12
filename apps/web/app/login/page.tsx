@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Mail } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
+import { Button, Field, Input, Panel } from "@/components/ui";
 
 /** Login per Magic Link (passwortlos). Callback: /auth/callback (PKCE). */
 export default function LoginPage() {
@@ -45,42 +47,56 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-10">
-      <Link href="/create" className="mb-6 text-sm text-zinc-500 hover:text-zinc-800">
+    <main
+      className="mx-auto flex min-h-screen flex-col justify-center"
+      style={{ maxWidth: 448, padding: "var(--space-10) var(--space-6)" }}
+    >
+      <Link
+        href="/create"
+        className="fp-btn fp-btn--ghost fp-btn--sm self-start"
+        style={{ marginLeft: -12, marginBottom: "var(--space-4)" }}
+      >
         ← {t("back")}
       </Link>
-      <h1 className="text-2xl font-bold">{t("title")}</h1>
-      <p className="mt-1 text-sm text-zinc-500">{t("subtitle")}</p>
+      <h1 style={{ font: "var(--type-h1)", letterSpacing: "var(--tracking-heading)", margin: 0 }}>
+        {t("title")}
+      </h1>
+      <p style={{ font: "var(--type-body-sm)", color: "var(--text-secondary)", margin: "var(--space-1) 0 0" }}>
+        {t("subtitle")}
+      </p>
 
       {sent ? (
-        <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
-          ✉️ {t("sent", { email })}
+        <div style={{ marginTop: "var(--space-6)" }}>
+          <Panel variant="ok" icon={<Mail size={18} strokeWidth={2} aria-hidden />}>
+            {t("sent", { email })}
+          </Panel>
         </div>
       ) : (
-        <form onSubmit={submit} className="mt-6 space-y-3">
-          <input
-            type="email"
-            required
-            autoFocus
-            placeholder={t("emailPlaceholder")}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm transition focus:border-zinc-900 focus:outline-none"
-          />
-          <button
-            type="submit"
-            disabled={busy || !email}
-            className="w-full rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition enabled:hover:bg-zinc-700 disabled:opacity-40"
-          >
+        <form
+          onSubmit={submit}
+          className="flex flex-col"
+          style={{ gap: "var(--space-3)", marginTop: "var(--space-6)" }}
+        >
+          <Field>
+            <Input
+              type="email"
+              required
+              autoFocus
+              placeholder={t("emailPlaceholder")}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </Field>
+          <Button type="submit" block disabled={!email} loading={busy}>
             {busy ? t("sending") : t("send")}
-          </button>
+          </Button>
         </form>
       )}
 
       {error && (
-        <p className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <div className="fp-panel fp-panel--error" style={{ marginTop: "var(--space-4)" }}>
           {error}
-        </p>
+        </div>
       )}
     </main>
   );

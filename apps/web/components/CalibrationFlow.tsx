@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Download } from "lucide-react";
 import {
   HOLE_LADDER_MM,
   SHAFT_LADDER_MM,
@@ -9,6 +10,7 @@ import {
   type ToleranceProfile,
 } from "@fitpart/shared";
 import { saveCalibration } from "@/lib/profiles";
+import { Button, Card, Field, Input, LadderPicker, Panel } from "@/components/ui";
 
 type Answers = {
   snug_hole_mm: number | null;
@@ -52,28 +54,18 @@ export default function CalibrationFlow() {
   const [profile, setProfile] = useState<ToleranceProfile | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const ladder = (
+  const ladderField = (
+    label: string,
     key: "snug_hole_mm" | "snug_shaft_mm" | "snug_slot_mm",
     values: readonly number[],
   ) => (
-    <div className="flex flex-wrap gap-2">
-      {values.map((v) => {
-        const active = answers[key] === v;
-        return (
-          <button
-            key={v}
-            type="button"
-            onClick={() => setAnswers((a) => ({ ...a, [key]: active ? null : v }))}
-            className={`rounded-md border px-3 py-1.5 text-sm tabular-nums transition ${
-              active
-                ? "border-zinc-900 bg-zinc-900 text-white"
-                : "border-zinc-300 bg-white hover:border-zinc-500"
-            }`}
-          >
-            {v.toFixed(1)}
-          </button>
-        );
-      })}
+    <div>
+      <p style={{ font: "var(--type-label)", margin: "0 0 var(--space-2)" }}>{label}</p>
+      <LadderPicker
+        values={values}
+        selected={answers[key]}
+        onChange={(v) => setAnswers((a) => ({ ...a, [key]: v }))}
+      />
     </div>
   );
 
@@ -95,69 +87,82 @@ export default function CalibrationFlow() {
   };
 
   return (
-    <div className="space-y-8">
-      <section className="rounded-xl border border-zinc-200 bg-white p-5">
-        <h2 className="font-semibold">{t("step1.title")}</h2>
-        <p className="mt-1 text-sm text-zinc-600">{t("step1.body")}</p>
-        <button
-          onClick={downloadCoupon}
-          className="mt-3 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700"
+    <div className="flex flex-col" style={{ gap: "var(--space-6)" }}>
+      <Card>
+        <h2 style={{ font: "var(--type-h3)", margin: "0 0 var(--space-1)" }}>{t("step1.title")}</h2>
+        <p
+          style={{
+            font: "var(--type-body-sm)",
+            color: "var(--text-secondary)",
+            margin: "0 0 var(--space-4)",
+          }}
         >
+          {t("step1.body")}
+        </p>
+        <Button variant="secondary" onClick={downloadCoupon}>
+          <Download size={16} strokeWidth={2} aria-hidden />
           {t("step1.download")}
-        </button>
-      </section>
+        </Button>
+      </Card>
 
-      <section className="rounded-xl border border-zinc-200 bg-white p-5">
-        <h2 className="font-semibold">{t("step2.title")}</h2>
-        <p className="mt-1 text-sm text-zinc-600">{t("step2.body")}</p>
+      <Card>
+        <h2 style={{ font: "var(--type-h3)", margin: "0 0 var(--space-1)" }}>{t("step2.title")}</h2>
+        <p
+          style={{
+            font: "var(--type-body-sm)",
+            color: "var(--text-secondary)",
+            margin: "0 0 var(--space-5)",
+          }}
+        >
+          {t("step2.body")}
+        </p>
 
-        <div className="mt-4 space-y-5">
-          <div>
-            <p className="mb-2 text-sm font-medium">{t("step2.hole")}</p>
-            {ladder("snug_hole_mm", HOLE_LADDER_MM)}
+        <div className="flex flex-col" style={{ gap: "var(--space-5)" }}>
+          {ladderField(t("step2.hole"), "snug_hole_mm", HOLE_LADDER_MM)}
+          {ladderField(t("step2.shaft"), "snug_shaft_mm", SHAFT_LADDER_MM)}
+          {ladderField(t("step2.slot"), "snug_slot_mm", SLOT_LADDER_MM)}
+          <div style={{ maxWidth: 160 }}>
+            <Field label={t("step2.nozzle")}>
+              <Input
+                type="number"
+                step={0.1}
+                min={0.1}
+                value={answers.nozzle_mm}
+                onChange={(e) =>
+                  setAnswers((a) => ({ ...a, nozzle_mm: Number(e.target.value) }))
+                }
+                style={{ textAlign: "right", fontFamily: "var(--font-mono)" }}
+              />
+            </Field>
           </div>
-          <div>
-            <p className="mb-2 text-sm font-medium">{t("step2.shaft")}</p>
-            {ladder("snug_shaft_mm", SHAFT_LADDER_MM)}
-          </div>
-          <div>
-            <p className="mb-2 text-sm font-medium">{t("step2.slot")}</p>
-            {ladder("snug_slot_mm", SLOT_LADDER_MM)}
-          </div>
-          <label className="block">
-            <span className="mb-1 block text-sm font-medium">{t("step2.nozzle")}</span>
-            <input
-              type="number"
-              step={0.1}
-              min={0.1}
-              value={answers.nozzle_mm}
-              onChange={(e) =>
-                setAnswers((a) => ({ ...a, nozzle_mm: Number(e.target.value) }))
-              }
-              className="w-24 rounded border border-zinc-300 px-2 py-1 text-right text-sm"
-            />
-          </label>
         </div>
 
-        <button
-          onClick={submit}
-          disabled={busy}
-          className="mt-5 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-40"
-        >
-          {busy ? t("step2.saving") : t("step2.save")}
-        </button>
-      </section>
+        <div style={{ marginTop: "var(--space-6)" }}>
+          <Button onClick={submit} loading={busy}>
+            {busy ? t("step2.saving") : t("step2.save")}
+          </Button>
+        </div>
+      </Card>
 
       {profile && (
-        <section className="rounded-xl border border-emerald-200 bg-emerald-50 p-5">
-          <h2 className="font-semibold text-emerald-900">{t("result.title")}</h2>
-          <ul className="mt-2 space-y-1 text-sm tabular-nums text-emerald-900">
+        <Panel variant="ok" title={t("result.title")}>
+          <ul
+            className="m-0 flex flex-wrap"
+            style={{
+              gap: "var(--space-2) var(--space-6)",
+              padding: 0,
+              listStyle: "none",
+              fontFamily: "var(--font-mono)",
+              fontVariantNumeric: "tabular-nums",
+              margin: "var(--space-2) 0",
+            }}
+          >
             <li>{t("result.hole")}: {profile.hole_offset_mm.toFixed(2)} mm</li>
             <li>{t("result.shaft")}: {profile.shaft_offset_mm.toFixed(2)} mm</li>
             <li>{t("result.slot")}: {profile.slot_offset_mm.toFixed(2)} mm</li>
           </ul>
-          <p className="mt-3 text-sm text-emerald-800">{t("result.applied")}</p>
-        </section>
+          {t("result.applied")}
+        </Panel>
       )}
     </div>
   );

@@ -20,14 +20,15 @@ export default function StlViewer({ stl }: { stl: ArrayBuffer }) {
   useEffect(() => () => geometry.dispose(), [geometry]);
 
   return (
-    <Canvas camera={{ position: [25, 20, 25], fov: 40 }}>
-      <color attach="background" args={["#f4f4f5"]} />
-      <ambientLight intensity={0.7} />
-      <directionalLight position={[20, 30, 20]} intensity={1.1} />
+    // Transparenter Canvas: das Millimeterpapier-Raster der Studio-Fläche
+    // scheint durch; das Teil in Mess-Orange ist das Hero-Visual.
+    <Canvas camera={{ position: [25, 20, 25], fov: 40 }} gl={{ alpha: true }}>
+      <ambientLight intensity={0.75} />
+      <directionalLight position={[20, 30, 20]} intensity={1.15} />
       <directionalLight position={[-15, -10, -20]} intensity={0.35} />
       <Bounds fit clip observe margin={1.4}>
         <mesh geometry={geometry}>
-          <meshStandardMaterial color="#94a3b8" metalness={0.1} roughness={0.45} />
+          <meshStandardMaterial color="#df5c0c" metalness={0.05} roughness={0.5} />
         </mesh>
       </Bounds>
       <OrbitControls makeDefault enableDamping />

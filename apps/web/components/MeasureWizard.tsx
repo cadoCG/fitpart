@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Camera, CircleCheck, Lightbulb, Ruler, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   ARCHETYPE_UI,
@@ -8,6 +9,7 @@ import {
   type AnalyzeResult,
   type Archetype,
 } from "@fitpart/shared";
+import { Button, Panel, ProgressBar, Stepper, TypeCard } from "@/components/ui";
 
 /**
  * Geführter Einstieg als Vollbild-Stepper (Foto → Bauteil-Typ → Messen),
@@ -168,81 +170,112 @@ export default function MeasureWizard({ onComplete }: Props) {
   // ---- Eintrittskarte in der Sidebar ----
   if (!open) {
     return (
-      <div className="rounded-xl border border-zinc-200 bg-gradient-to-br from-zinc-50 to-zinc-100 p-4">
-        <h2 className="font-semibold">{t("title")}</h2>
-        <p className="mt-1 text-sm text-zinc-500">{t("intro")}</p>
-        <button
-          onClick={() => setOpen(true)}
-          className="mt-3 w-full rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-700"
+      <div className="fp-card fp-card--pad">
+        <h2 style={{ font: "var(--type-h3)", margin: "0 0 var(--space-1)" }}>{t("title")}</h2>
+        <p
+          style={{
+            font: "var(--type-body-sm)",
+            color: "var(--text-secondary)",
+            margin: "0 0 var(--space-3)",
+          }}
         >
-          📷 {t("upload")}
-        </button>
+          {t("intro")}
+        </p>
+        <Button block onClick={() => setOpen(true)}>
+          <Camera size={17} strokeWidth={2} aria-hidden />
+          {t("upload")}
+        </Button>
       </div>
     );
   }
 
   // ---- Vollbild-Overlay ----
   return (
-    <div className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-white">
+    <div
+      className="fixed inset-0 z-50 flex flex-col overflow-y-auto"
+      style={{ background: "var(--surface-card)" }}
+    >
       {/* Header mit Stepper */}
-      <header className="sticky top-0 z-10 border-b border-zinc-200 bg-white/90 px-6 py-4 backdrop-blur">
-        <div className="mx-auto flex max-w-2xl items-center justify-between">
-          <nav className="flex items-center gap-2 text-sm">
-            {[t("stepPhoto"), t("stepType"), t("stepMeasure")].map((label, i) => (
-              <span key={label} className="flex items-center gap-2">
-                {i > 0 && <span className="h-px w-6 bg-zinc-300" />}
-                <span
-                  className={`flex size-6 items-center justify-center rounded-full text-xs font-semibold ${
-                    i < stepperIndex
-                      ? "bg-emerald-600 text-white"
-                      : i === stepperIndex
-                        ? "bg-zinc-900 text-white"
-                        : "bg-zinc-200 text-zinc-500"
-                  }`}
-                >
-                  {i < stepperIndex ? "✓" : i + 1}
-                </span>
-                <span
-                  className={`hidden sm:inline ${
-                    i === stepperIndex
-                      ? "font-medium text-zinc-900"
-                      : "text-zinc-400"
-                  }`}
-                >
-                  {label}
-                </span>
-              </span>
-            ))}
-          </nav>
+      <header
+        className="sticky top-0 z-10 border-b"
+        style={{
+          borderColor: "var(--border-default)",
+          background: "color-mix(in srgb, var(--surface-card) 92%, transparent)",
+          backdropFilter: "blur(8px)",
+          padding: "var(--space-4) var(--space-6)",
+        }}
+      >
+        <div
+          className="mx-auto flex items-center justify-between"
+          style={{ maxWidth: "var(--container-narrow)" }}
+        >
+          <Stepper
+            steps={[t("stepPhoto"), t("stepType"), t("stepMeasure")]}
+            current={stepperIndex}
+          />
           <button
             onClick={close}
             aria-label={t("close")}
-            className="rounded-full p-2 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-700"
+            className="fp-btn fp-btn--ghost fp-btn--sm"
+            style={{ borderRadius: "var(--radius-full)", padding: "0 10px" }}
           >
-            ✕
+            <X size={17} strokeWidth={2} aria-hidden />
           </button>
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-8">
+      <main
+        className="mx-auto w-full flex-1"
+        style={{
+          maxWidth: "var(--container-narrow)",
+          padding: "var(--space-8) var(--space-6)",
+        }}
+      >
         {/* Schritt 1: Foto */}
         {(phase === "upload" || phase === "analyzing") && (
           <section>
-            <h1 className="text-xl font-bold">{t("uploadTitle")}</h1>
-            <p className="mt-1 text-sm text-zinc-500">{t("intro")}</p>
+            <h1 style={{ font: "var(--type-h2)", margin: 0 }}>{t("uploadTitle")}</h1>
+            <p
+              style={{
+                font: "var(--type-body-sm)",
+                color: "var(--text-secondary)",
+                margin: "var(--space-1) 0 var(--space-6)",
+              }}
+            >
+              {t("intro")}
+            </p>
 
             {phase === "analyzing" && photo ? (
-              <div className="relative mt-6 overflow-hidden rounded-2xl border border-zinc-200">
+              <div
+                className="relative overflow-hidden"
+                style={{ borderRadius: "var(--radius-lg)", border: "1px solid var(--border-default)" }}
+              >
                 <img
                   src={`data:image/jpeg;base64,${photo}`}
                   alt=""
                   className="max-h-96 w-full object-contain"
                 />
-                <div className="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-[2px]">
-                  <div className="flex items-center gap-3 rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white shadow-lg">
-                    <span className="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                <div
+                  className="absolute inset-0 flex items-center justify-center"
+                  style={{
+                    background: "color-mix(in srgb, var(--surface-card) 55%, transparent)",
+                    backdropFilter: "blur(2px)",
+                  }}
+                >
+                  <span
+                    className="inline-flex items-center gap-3"
+                    style={{
+                      background: "var(--surface-inverse)",
+                      color: "var(--text-on-inverse)",
+                      borderRadius: "var(--radius-full)",
+                      padding: "10px 20px",
+                      font: "var(--type-label)",
+                      boxShadow: "var(--shadow-lg)",
+                    }}
+                  >
+                    <span className="fp-spinner" aria-hidden />
                     {t("analyzing")}
-                  </div>
+                  </span>
                 </div>
               </div>
             ) : (
@@ -259,15 +292,20 @@ export default function MeasureWizard({ onComplete }: Props) {
                   if (file?.type.startsWith("image/")) void analyze(file);
                 }}
                 onClick={() => fileRef.current?.click()}
-                className={`mt-6 flex min-h-64 cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-8 text-center transition ${
-                  dragOver
-                    ? "border-zinc-900 bg-zinc-50"
-                    : "border-zinc-300 bg-zinc-50/50 hover:border-zinc-500 hover:bg-zinc-50"
-                }`}
+                className={`fp-dropzone${dragOver ? " fp-dropzone--active" : ""}`}
               >
-                <span className="text-3xl">📷</span>
-                <p className="font-medium text-zinc-700">{t("dropzone")}</p>
-                <p className="text-sm text-zinc-400">{t("dropzoneHint")}</p>
+                <Camera
+                  size={36}
+                  strokeWidth={1.5}
+                  style={{ color: "var(--text-tertiary)" }}
+                  aria-hidden
+                />
+                <p style={{ margin: 0, font: "var(--type-label)", fontSize: "var(--text-base)" }}>
+                  {t("dropzone")}
+                </p>
+                <p style={{ margin: 0, font: "var(--type-body-sm)", color: "var(--text-tertiary)" }}>
+                  {t("dropzoneHint")}
+                </p>
               </div>
             )}
 
@@ -282,85 +320,72 @@ export default function MeasureWizard({ onComplete }: Props) {
                 if (file) void analyze(file);
               }}
             />
-            {error && (
-              <p className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-                {error}
-              </p>
-            )}
+            {error && <div className="fp-panel fp-panel--error" style={{ marginTop: "var(--space-4)" }}>{error}</div>}
           </section>
         )}
 
         {/* Schritt 2: Bauteil-Typ */}
         {phase === "suggest" && result && (
           <section>
-            <h1 className="text-xl font-bold">{t("suggestHeading")}</h1>
-            <p className="mt-1 text-sm text-zinc-500">{t("suggestSub")}</p>
+            <h1 style={{ font: "var(--type-h2)", margin: 0 }}>{t("suggestHeading")}</h1>
+            <p
+              style={{
+                font: "var(--type-body-sm)",
+                color: "var(--text-secondary)",
+                margin: "var(--space-1) 0 var(--space-6)",
+              }}
+            >
+              {t("suggestSub")}
+            </p>
 
-            <div className="mt-6 flex flex-col gap-6 sm:flex-row">
+            <div className="fpk-wizrow">
               {photo && (
                 <img
                   src={`data:image/jpeg;base64,${photo}`}
                   alt=""
-                  className="h-40 w-full rounded-xl border border-zinc-200 object-cover sm:w-40"
+                  className="fpk-photo"
                 />
               )}
-              <div className="flex-1 space-y-2">
-                {[result.archetype, ...result.alternative_archetypes].map(
-                  (a, i) => (
-                    <button
-                      key={a}
-                      onClick={() => setArchetype(a)}
-                      className={`flex w-full items-center justify-between rounded-xl border-2 px-4 py-3 text-left transition ${
-                        archetype === a
-                          ? "border-zinc-900 bg-zinc-900 text-white"
-                          : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-400"
-                      }`}
-                    >
-                      <span className="font-medium">
-                        {tc(`archetypes.${a}`)}
-                      </span>
-                      {i === 0 && (
-                        <span
-                          className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                            archetype === a
-                              ? "bg-emerald-500 text-white"
-                              : "bg-emerald-100 text-emerald-700"
-                          }`}
-                        >
-                          {Math.round(result.archetype_confidence * 100)} %
-                        </span>
-                      )}
-                    </button>
-                  ),
-                )}
+              <div className="flex flex-1 flex-col" style={{ gap: "var(--space-2)", minWidth: 0 }}>
+                {[result.archetype, ...result.alternative_archetypes].map((a, i) => (
+                  <TypeCard
+                    key={a}
+                    selected={archetype === a}
+                    label={tc(`archetypes.${a}`)}
+                    confidence={i === 0 ? result.archetype_confidence : undefined}
+                    onClick={() => setArchetype(a)}
+                  />
+                ))}
               </div>
             </div>
 
             {result.notes_de && (
-              <div className="mt-4 flex gap-2 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
-                <span>💡</span>
-                <p>{result.notes_de}</p>
+              <div style={{ marginTop: "var(--space-5)" }}>
+                <Panel
+                  variant="accent"
+                  icon={<Lightbulb size={16} strokeWidth={2} aria-hidden />}
+                  title={t("photoNoteTitle")}
+                >
+                  {result.notes_de}
+                </Panel>
               </div>
             )}
 
-            <div className="mt-6 flex gap-2">
-              <button
+            <div className="flex" style={{ gap: "var(--space-2)", marginTop: "var(--space-6)" }}>
+              <Button
+                variant="secondary"
                 onClick={() => {
                   setPhase("upload");
                   setPhoto(null);
                   setResult(null);
                   if (fileRef.current) fileRef.current.value = "";
                 }}
-                className="rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm text-zinc-700 transition hover:border-zinc-500"
               >
                 {t("replacePhoto")}
-              </button>
-              <button
-                onClick={startMeasure}
-                className="flex-1 rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-700"
-              >
+              </Button>
+              <Button block onClick={startMeasure}>
                 {t("startMeasure")} →
-              </button>
+              </Button>
             </div>
           </section>
         )}
@@ -373,44 +398,44 @@ export default function MeasureWizard({ onComplete }: Props) {
             const isLast = stepIndex === steps.length - 1;
             return (
               <section>
-                <div className="flex items-center justify-between text-sm">
-                  <p className="font-medium text-zinc-500">
-                    {t("step", {
-                      current: stepIndex + 1,
-                      total: steps.length,
-                    })}{" "}
-                    · {tc(`archetypes.${archetype}`)}
-                  </p>
-                </div>
-                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-zinc-100">
-                  <div
-                    className="h-full rounded-full bg-zinc-900 transition-all duration-300"
-                    style={{
-                      width: `${((stepIndex + 1) / steps.length) * 100}%`,
-                    }}
-                  />
-                </div>
+                <p
+                  style={{
+                    font: "var(--type-body-sm)",
+                    fontWeight: 500,
+                    color: "var(--text-secondary)",
+                    margin: "0 0 var(--space-2)",
+                  }}
+                >
+                  {t("step", { current: stepIndex + 1, total: steps.length })} ·{" "}
+                  {tc(`archetypes.${archetype}`)}
+                </p>
+                <ProgressBar value={stepIndex + 1} max={steps.length} />
 
-                <div className="mt-8 flex flex-col gap-6 sm:flex-row">
+                <div className="fpk-wizrow" style={{ marginTop: "var(--space-8)" }}>
                   {photo && (
-                    <img
-                      src={`data:image/jpeg;base64,${photo}`}
-                      alt=""
-                      className="h-32 w-full rounded-xl border border-zinc-200 object-cover sm:w-32"
-                    />
+                    <img src={`data:image/jpeg;base64,${photo}`} alt="" className="fpk-photo" />
                   )}
                   <div className="flex-1">
-                    <h1 className="text-xl font-bold">
+                    <h1 style={{ font: "var(--type-h2)", margin: 0, textWrap: "pretty" }}>
                       {t(`questions.${currentParam}`)}
                     </h1>
-                    <p className="mt-2 flex gap-2 text-sm text-zinc-500">
-                      <span>📏</span>
+                    <p
+                      className="flex gap-2"
+                      style={{
+                        font: "var(--type-body-sm)",
+                        color: "var(--text-secondary)",
+                        margin: "var(--space-3) 0 var(--space-6)",
+                      }}
+                    >
+                      <Ruler size={16} strokeWidth={2} className="mt-0.5 shrink-0" aria-hidden />
                       {t(`hints.${currentParam}`)}
                     </p>
 
-                    <div className="mt-6 flex items-baseline gap-2">
+                    <span className="inline-flex items-baseline" style={{ gap: "var(--space-2)" }}>
                       <input
                         type="number"
+                        className="fp-input fp-input--measure"
+                        style={{ width: 150 }}
                         value={Number.isFinite(value) ? value : ""}
                         min={range?.min}
                         max={range?.max}
@@ -421,45 +446,61 @@ export default function MeasureWizard({ onComplete }: Props) {
                             [currentParam]: Number(e.target.value),
                           }))
                         }
-                        className="w-36 rounded-xl border-2 border-zinc-300 bg-white px-4 py-3 text-2xl font-semibold tabular-nums transition focus:border-zinc-900 focus:outline-none"
                         autoFocus
                       />
-                      <span className="text-lg text-zinc-400">mm</span>
-                    </div>
+                      <span
+                        style={{
+                          font: "var(--type-measure)",
+                          fontSize: "var(--text-lg)",
+                          color: "var(--text-tertiary)",
+                        }}
+                      >
+                        mm
+                      </span>
+                    </span>
                     {range && (value < range.min || value > range.max) && (
-                      <p className="mt-2 text-sm text-amber-700">
+                      <p
+                        style={{
+                          font: "var(--type-body-sm)",
+                          color: "var(--status-warn)",
+                          margin: "var(--space-2) 0 0",
+                        }}
+                      >
                         {t("rangeHint", { min: range.min, max: range.max })}
                       </p>
                     )}
                   </div>
                 </div>
 
-                <div className="mt-8 flex gap-2">
-                  <button
+                <div className="flex" style={{ gap: "var(--space-2)", marginTop: "var(--space-8)" }}>
+                  <Button
+                    variant="secondary"
                     onClick={() =>
-                      stepIndex === 0
-                        ? setPhase("suggest")
-                        : setStepIndex((i) => i - 1)
+                      stepIndex === 0 ? setPhase("suggest") : setStepIndex((i) => i - 1)
                     }
-                    className="rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm text-zinc-700 transition hover:border-zinc-500"
                   >
                     ← {t("back")}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    block
                     onClick={() => {
-                      const clamped = range
-                        ? clamp(value, range.min, range.max)
-                        : value;
+                      const clamped = range ? clamp(value, range.min, range.max) : value;
                       const next = { ...measured, [currentParam]: clamped };
                       setMeasured(next);
                       if (isLast) finish(next);
                       else setStepIndex((i) => i + 1);
                     }}
                     disabled={!Number.isFinite(value) || value <= 0}
-                    className="flex-1 rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition enabled:hover:bg-zinc-700 disabled:opacity-40"
                   >
-                    {isLast ? `${t("finish")} ✓` : `${t("next")} →`}
-                  </button>
+                    {isLast ? (
+                      <>
+                        {t("finish")}
+                        <CircleCheck size={16} strokeWidth={2.5} aria-hidden />
+                      </>
+                    ) : (
+                      `${t("next")} →`
+                    )}
+                  </Button>
                 </div>
               </section>
             );

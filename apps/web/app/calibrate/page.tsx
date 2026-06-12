@@ -1,19 +1,49 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import CalibrationFlow from "@/components/CalibrationFlow";
+import { Logo } from "@/components/Logo";
 
 export default function CalibratePage() {
   const t = useTranslations("Calibrate");
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
-      <header className="mb-8">
-        <Link href="/create" className="text-sm text-zinc-500 hover:text-zinc-800">
-          ← {t("back")}
-        </Link>
-        <h1 className="mt-2 text-2xl font-bold">{t("title")}</h1>
-        <p className="mt-1 text-zinc-600">{t("subtitle")}</p>
-      </header>
-      <CalibrationFlow />
-    </main>
+    <div style={{ minHeight: "100%", background: "var(--surface-page)" }}>
+      <main
+        className="mx-auto"
+        style={{
+          maxWidth: "var(--container-narrow)",
+          padding: "var(--space-8) var(--space-6)",
+        }}
+      >
+        <header style={{ marginBottom: "var(--space-8)" }}>
+          <Link
+            href="/"
+            aria-label="FitPart Startseite"
+            style={{ width: "fit-content", display: "inline-flex", marginBottom: "var(--space-4)" }}
+          >
+            <Logo size={22} />
+          </Link>
+          <Link
+            href="/create"
+            className="fp-btn fp-btn--ghost fp-btn--sm"
+            style={{ marginLeft: -12, display: "block" }}
+          >
+            ← {t("back")}
+          </Link>
+          <h1
+            style={{
+              font: "var(--type-h1)",
+              letterSpacing: "var(--tracking-heading)",
+              margin: "var(--space-3) 0 0",
+            }}
+          >
+            {t("title")}
+          </h1>
+          <p style={{ font: "var(--type-body)", color: "var(--text-secondary)", margin: "var(--space-2) 0 0" }}>
+            {t("subtitle")}
+          </p>
+        </header>
+        <CalibrationFlow />
+      </main>
+    </div>
   );
 }

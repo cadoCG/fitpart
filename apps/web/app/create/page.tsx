@@ -14,8 +14,17 @@ import {
   type ToleranceProfile,
 } from "@fitpart/shared";
 import AccountBar from "@/components/AccountBar";
+import { Logo } from "@/components/Logo";
 import MeasureWizard from "@/components/MeasureWizard";
 import ParamSlider from "@/components/ParamSlider";
+import {
+  Badge,
+  Button,
+  Field,
+  PrintRecPanel,
+  Select,
+  ViewerFrame,
+} from "@/components/ui";
 import { loadActiveTolerance } from "@/lib/profiles";
 
 // three/WebGL nur im Browser laden.
@@ -187,176 +196,157 @@ export default function CreatePage() {
         );
       case "boolean":
         return (
-          <label key={field.key} className="flex items-center gap-2">
+          <label key={field.key} className="fp-checkbox">
             <input
               type="checkbox"
               checked={Boolean(value)}
               onChange={(e) => set(field.key, e.target.checked)}
-              className="size-4 accent-zinc-900"
             />
-            <span className="text-sm font-medium text-zinc-700">
-              {t(`params.${field.key}`)}
-            </span>
+            <span>{t(`params.${field.key}`)}</span>
           </label>
         );
       case "fit":
         return (
-          <label key={field.key} className="block">
-            <span className="mb-1 block text-sm font-medium text-zinc-700">
-              {t("params.fit")}
-            </span>
-            <select
+          <Field key={field.key} label={t("params.fit")}>
+            <Select
               value={String(value)}
               onChange={(e) => set(field.key, e.target.value)}
-              className="w-full rounded border border-zinc-300 bg-white px-3 py-2 text-sm"
-            >
-              {FitClass.options.map((fit) => (
-                <option key={fit} value={fit}>
-                  {t(`fit.${fit}`)}
-                </option>
-              ))}
-            </select>
-          </label>
+              options={FitClass.options.map((fit) => ({
+                value: fit,
+                label: t(`fit.${fit}`),
+              }))}
+            />
+          </Field>
         );
       case "select":
         return (
-          <label key={field.key} className="block">
-            <span className="mb-1 block text-sm font-medium text-zinc-700">
-              {t(`params.${field.key}`)}
-            </span>
-            <select
+          <Field key={field.key} label={t(`params.${field.key}`)}>
+            <Select
               value={String(value)}
               onChange={(e) => set(field.key, e.target.value)}
-              className="w-full rounded border border-zinc-300 bg-white px-3 py-2 text-sm"
-            >
-              {field.options.map((opt) => (
-                <option key={opt} value={opt}>
-                  {t(`options.${opt}`)}
-                </option>
-              ))}
-            </select>
-          </label>
+              options={field.options.map((opt) => ({
+                value: opt,
+                label: t(`options.${opt}`),
+              }))}
+            />
+          </Field>
         );
     }
   };
 
+  const calibrated = Boolean(profile?.calibrated);
+
   return (
-    <main className="mx-auto grid min-h-screen max-w-5xl gap-8 px-6 py-10 md:grid-cols-[20rem_1fr]">
-      <section className="space-y-5">
-        <header>
-          <h1 className="text-2xl font-bold">{t("title")}</h1>
-          <p className="mt-1 text-sm text-zinc-500">{t("subtitle")}</p>
-        </header>
-
-        <AccountBar />
-
-        <MeasureWizard onComplete={applyWizardResult} />
-
-        <Link
-          href="/calibrate"
-          className={`block rounded-lg border px-3 py-2 text-sm transition ${
-            profile?.calibrated
-              ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:border-emerald-400"
-              : "border-amber-200 bg-amber-50 text-amber-800 hover:border-amber-400"
-          }`}
-        >
-          {profile?.calibrated ? t("calibrated") : t("notCalibrated")}
-        </Link>
-
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-zinc-700">
-            {t("archetype")}
-          </span>
-          <select
-            value={archetype}
-            onChange={(e) => switchArchetype(e.target.value as Archetype)}
-            className="w-full rounded border border-zinc-300 bg-white px-3 py-2 text-sm font-medium"
-          >
-            {ARCHETYPES.map((a) => (
-              <option key={a} value={a}>
-                {t(`archetypes.${a}`)}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        {ARCHETYPE_UI[archetype].fields.map(renderField)}
-
-        {error && (
-          <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-            {error}
-          </p>
-        )}
-
-        <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm">
-          <p className="font-semibold text-zinc-700">🖨 {t("printRec.title")}</p>
-          <dl className="mt-1.5 space-y-1 text-zinc-600">
-            <div className="flex gap-2">
-              <dt className="w-24 shrink-0 text-zinc-400">
-                {t("printRec.material")}
-              </dt>
-              <dd>{t(`printRec.${archetype}.material`)}</dd>
-            </div>
-            <div className="flex gap-2">
-              <dt className="w-24 shrink-0 text-zinc-400">
-                {t("printRec.orientation")}
-              </dt>
-              <dd>{t(`printRec.${archetype}.orientation`)}</dd>
-            </div>
-            <div className="flex gap-2">
-              <dt className="w-24 shrink-0 text-zinc-400">
-                {t("printRec.infill")}
-              </dt>
-              <dd>{t(`printRec.${archetype}.infill`)}</dd>
-            </div>
-          </dl>
-          {photoNotes && (
-            <p className="mt-2 border-t border-zinc-200 pt-2 text-zinc-600">
-              <span className="text-zinc-400">💡 {t("printRec.fromPhoto")}:</span>{" "}
-              {photoNotes}
+    <div style={{ minHeight: "100%", background: "var(--surface-page)" }}>
+      <main className="fpk-werkbank">
+        <section className="flex flex-col" style={{ gap: "var(--space-5)" }}>
+          <Link href="/" aria-label="FitPart Startseite" style={{ width: "fit-content" }}>
+            <Logo size={24} />
+          </Link>
+          <header>
+            <h1 style={{ font: "var(--type-h1)", letterSpacing: "var(--tracking-heading)", margin: 0 }}>
+              {t("title")}
+            </h1>
+            <p
+              style={{
+                font: "var(--type-body-sm)",
+                color: "var(--text-secondary)",
+                margin: "var(--space-1) 0 0",
+              }}
+            >
+              {t("subtitle")}
             </p>
-          )}
-        </div>
+          </header>
 
-        <div className="flex gap-2">
-          <button
-            onClick={() => void download("3mf")}
-            disabled={!stl || busy || downloading}
-            className="flex-1 rounded-lg bg-zinc-900 px-4 py-2.5 font-medium text-white transition enabled:hover:bg-zinc-700 disabled:opacity-40"
-          >
-            {busy || downloading ? (
-              t("generating")
-            ) : (
-              <>
-                {t("download3mf")}{" "}
-                <span className="text-xs font-normal text-zinc-300">
-                  {t("download3mfHint")}
-                </span>
-              </>
-            )}
-          </button>
-          <button
-            onClick={() => void download("stl")}
-            disabled={!stl || busy || downloading}
-            className="rounded-lg border border-zinc-300 bg-white px-4 py-2.5 font-medium text-zinc-700 transition enabled:hover:border-zinc-500 disabled:opacity-40"
-          >
-            {t("downloadStl")}
-          </button>
-        </div>
-      </section>
+          <AccountBar />
 
-      <section className="flex min-h-[24rem] flex-col overflow-hidden rounded-xl border border-zinc-200 md:sticky md:top-10 md:max-h-[calc(100vh-5rem)]">
-        {stl ? (
-          <StlViewer stl={stl} />
-        ) : (
-          <div className="flex flex-1 items-center justify-center text-sm text-zinc-400">
-            {busy ? t("generating") : t("noPreview")}
+          <MeasureWizard onComplete={applyWizardResult} />
+
+          <Link
+            href="/calibrate"
+            className={`fp-panel fp-panel--${calibrated ? "ok" : "warn"} flex w-full items-center gap-2`}
+            style={{ font: "var(--type-body-sm)", fontWeight: 500 }}
+          >
+            <span
+              className="fp-badge__dot"
+              style={{ background: "currentColor", width: 7, height: 7 }}
+              aria-hidden
+            />
+            {calibrated ? t("calibrated") : t("notCalibrated")}
+            <span style={{ marginLeft: "auto", opacity: 0.6 }} aria-hidden>
+              →
+            </span>
+          </Link>
+
+          <Field label={t("archetype")}>
+            <Select
+              value={archetype}
+              onChange={(e) => switchArchetype(e.target.value as Archetype)}
+              options={ARCHETYPES.map((a) => ({ value: a, label: t(`archetypes.${a}`) }))}
+            />
+          </Field>
+
+          {ARCHETYPE_UI[archetype].fields.map(renderField)}
+
+          {error && <div className="fp-panel fp-panel--error">{error}</div>}
+
+          <PrintRecPanel
+            title={t("printRec.title")}
+            rows={[
+              { label: t("printRec.material"), value: t(`printRec.${archetype}.material`) },
+              { label: t("printRec.orientation"), value: t(`printRec.${archetype}.orientation`) },
+              { label: t("printRec.infill"), value: t(`printRec.${archetype}.infill`) },
+            ]}
+            note={photoNotes ?? undefined}
+            noteLabel={`${t("printRec.fromPhoto")}:`}
+          />
+
+          <div className="fpk-downloads">
+            <Button
+              block
+              onClick={() => void download("3mf")}
+              disabled={!stl || busy || downloading}
+              loading={busy || downloading}
+              hint={busy || downloading ? undefined : t("download3mfHint")}
+            >
+              {busy || downloading ? t("generating") : t("download3mf")}
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => void download("stl")}
+              disabled={!stl || busy || downloading}
+            >
+              {t("downloadStl")}
+            </Button>
           </div>
-        )}
-        <p className="border-t border-zinc-200 bg-white px-3 py-1.5 text-xs text-zinc-400">
-          {t("viewerHint")}
-        </p>
-      </section>
-    </main>
+        </section>
+
+        <section className="fpk-werkbank__viewer">
+          <ViewerFrame
+            height="clamp(300px, 58vh, 580px)"
+            hint={t("viewerHint")}
+            badge={
+              <span className="flex" style={{ gap: "var(--space-2)" }}>
+                <Badge variant="accent">{t(`archetypes.${archetype}`)}</Badge>
+                {busy && <Badge>{t("generating")}</Badge>}
+              </span>
+            }
+          >
+            <div className="absolute inset-0">
+              {stl ? (
+                <StlViewer stl={stl} />
+              ) : (
+                <div
+                  className="flex h-full items-center justify-center"
+                  style={{ font: "var(--type-body-sm)", color: "var(--text-tertiary)" }}
+                >
+                  {busy ? t("generating") : t("noPreview")}
+                </div>
+              )}
+            </div>
+          </ViewerFrame>
+        </section>
+      </main>
+    </div>
   );
 }

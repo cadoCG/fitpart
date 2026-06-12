@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Cloud } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/lib/useUser";
@@ -16,27 +17,41 @@ export default function AccountBar() {
     return (
       <Link
         href="/login"
-        className="block rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-600 transition hover:border-zinc-400"
+        className="fp-card flex items-center gap-2"
+        style={{
+          padding: "var(--space-2) var(--space-3)",
+          font: "var(--type-body-sm)",
+          color: "var(--text-secondary)",
+        }}
       >
-        ☁️ {t("loginCta")}
+        <Cloud size={16} strokeWidth={2} className="shrink-0" aria-hidden />
+        {t("loginCta")}
       </Link>
     );
   }
 
   return (
-    <div className="flex items-center justify-between gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm">
-      <span className="truncate text-zinc-600" title={user.email ?? ""}>
+    <div
+      className="fp-card flex items-center justify-between gap-2"
+      style={{ padding: "var(--space-2) var(--space-3)", font: "var(--type-body-sm)" }}
+    >
+      <span className="truncate" style={{ color: "var(--text-secondary)" }} title={user.email ?? ""}>
         {user.email}
       </span>
       <span className="flex shrink-0 items-center gap-3">
-        <Link href="/profiles" className="font-medium text-zinc-900 hover:underline">
+        <Link
+          href="/profiles"
+          style={{ fontWeight: 500, color: "var(--text-primary)" }}
+          className="hover:underline"
+        >
           {t("profiles")}
         </Link>
         <button
           onClick={async () => {
             await createClient().auth.signOut();
           }}
-          className="text-zinc-400 transition hover:text-zinc-700"
+          style={{ color: "var(--text-tertiary)" }}
+          className="transition hover:opacity-70"
         >
           {t("logout")}
         </button>

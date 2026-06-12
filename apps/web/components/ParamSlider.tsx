@@ -1,6 +1,6 @@
 "use client";
 
-/** Slider + Zahlenfeld für einen mm-Parameter. */
+/** Slider + Mono-Zahlenfeld für einen mm-Parameter (Werkbank). */
 export default function ParamSlider({
   label,
   value,
@@ -18,11 +18,14 @@ export default function ParamSlider({
   unit?: string;
   onChange: (value: number) => void;
 }) {
+  const fill = `${(((value ?? min) - min) / (max - min)) * 100}%`;
   return (
-    <label className="block">
-      <div className="mb-1 flex items-baseline justify-between">
-        <span className="text-sm font-medium text-zinc-700">{label}</span>
-        <span className="flex items-baseline gap-1 text-sm tabular-nums text-zinc-500">
+    <div className="fp-slider">
+      <div className="fp-slider__head">
+        <span className="fp-field__label" style={{ marginBottom: 0 }}>
+          {label}
+        </span>
+        <span className="fp-slider__value">
           <input
             type="number"
             value={value}
@@ -30,20 +33,20 @@ export default function ParamSlider({
             max={max}
             step={step}
             onChange={(e) => onChange(Number(e.target.value))}
-            className="w-20 rounded border border-zinc-300 px-2 py-0.5 text-right"
           />
-          {unit}
+          {unit && <span className="fp-slider__unit">{unit}</span>}
         </span>
       </div>
       <input
         type="range"
+        className="fp-range"
+        style={{ "--fp-range-fill": fill } as React.CSSProperties}
         value={value}
         min={min}
         max={max}
         step={step}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full accent-zinc-900"
       />
-    </label>
+    </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { CircleCheck, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   deleteProfile,
@@ -46,107 +47,132 @@ export default function ProfilesPage() {
   };
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
-      <Link href="/create" className="text-sm text-zinc-500 hover:text-zinc-800">
-        ← {t("back")}
-      </Link>
-      <h1 className="mt-2 text-2xl font-bold">{t("title")}</h1>
-      <p className="mt-1 text-sm text-zinc-500">{t("subtitle")}</p>
-
-      {!loading && !user && (
-        <p className="mt-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          {t("needLogin")}{" "}
-          <Link href="/login" className="font-medium underline">
-            {t("loginLink")}
-          </Link>
-        </p>
-      )}
-
-      {error && (
-        <p className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-          {error}
-        </p>
-      )}
-
-      {user && ready && profiles.length === 0 && (
-        <p className="mt-6 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-600">
-          {t("empty")}{" "}
-          <Link href="/calibrate" className="font-medium underline">
-            {t("calibrateLink")}
-          </Link>
-        </p>
-      )}
-
-      <ul className="mt-6 space-y-3">
-        {profiles.map((p) => (
-          <li
-            key={p.id}
-            className={`rounded-xl border p-4 transition ${
-              p.is_active
-                ? "border-emerald-300 bg-emerald-50"
-                : "border-zinc-200 bg-white"
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <input
-                type="radio"
-                name="active"
-                checked={p.is_active}
-                onChange={() => void act(() => setActiveProfile(p.id))}
-                className="size-4 accent-emerald-600"
-                title={t("setActive")}
-              />
-              <input
-                defaultValue={p.name}
-                onBlur={(e) => {
-                  const name = e.target.value.trim();
-                  if (name && name !== p.name)
-                    void act(() => renameProfile(p.id, name));
-                }}
-                className="flex-1 rounded border border-transparent bg-transparent px-1 py-0.5 text-sm font-medium transition hover:border-zinc-300 focus:border-zinc-900 focus:bg-white focus:outline-none"
-              />
-              {p.is_active && (
-                <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-xs font-semibold text-white">
-                  {t("active")}
-                </span>
-              )}
-              <button
-                onClick={() => {
-                  if (window.confirm(t("deleteConfirm", { name: p.name })))
-                    void act(() => deleteProfile(p.id));
-                }}
-                className="text-zinc-400 transition hover:text-red-600"
-                title={t("delete")}
-              >
-                ✕
-              </button>
-            </div>
-            <dl className="mt-2 flex flex-wrap gap-x-5 gap-y-1 pl-7 text-xs tabular-nums text-zinc-500">
-              <div>
-                {t("nozzle")}: {Number(p.nozzle_mm).toFixed(1)} mm
-              </div>
-              <div>
-                {t("hole")}: {Number(p.hole_offset_mm).toFixed(2)} mm
-              </div>
-              <div>
-                {t("shaft")}: {Number(p.shaft_offset_mm).toFixed(2)} mm
-              </div>
-              <div>
-                {t("slot")}: {Number(p.slot_offset_mm).toFixed(2)} mm
-              </div>
-            </dl>
-          </li>
-        ))}
-      </ul>
-
-      {user && (
+    <div style={{ minHeight: "100%", background: "var(--surface-page)" }}>
+      <main
+        className="mx-auto"
+        style={{ maxWidth: "var(--container-narrow)", padding: "var(--space-8) var(--space-6)" }}
+      >
         <Link
-          href="/calibrate"
-          className="mt-6 inline-block rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-700"
+          href="/create"
+          className="fp-btn fp-btn--ghost fp-btn--sm"
+          style={{ marginLeft: -12 }}
         >
-          + {t("newProfile")}
+          ← {t("back")}
         </Link>
-      )}
-    </main>
+        <h1
+          style={{
+            font: "var(--type-h1)",
+            letterSpacing: "var(--tracking-heading)",
+            margin: "var(--space-3) 0 0",
+          }}
+        >
+          {t("title")}
+        </h1>
+        <p style={{ font: "var(--type-body-sm)", color: "var(--text-secondary)", margin: "var(--space-1) 0 0" }}>
+          {t("subtitle")}
+        </p>
+
+        {!loading && !user && (
+          <div className="fp-panel fp-panel--warn" style={{ marginTop: "var(--space-6)" }}>
+            {t("needLogin")}{" "}
+            <Link href="/login" className="font-medium underline">
+              {t("loginLink")}
+            </Link>
+          </div>
+        )}
+
+        {error && (
+          <div className="fp-panel fp-panel--error" style={{ marginTop: "var(--space-4)" }}>
+            {error}
+          </div>
+        )}
+
+        {user && ready && profiles.length === 0 && (
+          <div className="fp-panel" style={{ marginTop: "var(--space-6)" }}>
+            {t("empty")}{" "}
+            <Link href="/calibrate" className="font-medium underline">
+              {t("calibrateLink")}
+            </Link>
+          </div>
+        )}
+
+        <ul className="flex list-none flex-col p-0" style={{ gap: "var(--space-3)", marginTop: "var(--space-6)" }}>
+          {profiles.map((p) => (
+            <li
+              key={p.id}
+              className="fp-card fp-card--pad"
+              style={
+                p.is_active
+                  ? {
+                      borderColor: "var(--status-ok-border)",
+                      background: "var(--status-ok-bg)",
+                    }
+                  : undefined
+              }
+            >
+              <div className="flex items-center gap-3">
+                <input
+                  type="radio"
+                  name="active"
+                  checked={p.is_active}
+                  onChange={() => void act(() => setActiveProfile(p.id))}
+                  title={t("setActive")}
+                  style={{ width: 16, height: 16, accentColor: "var(--status-ok)" }}
+                />
+                <input
+                  defaultValue={p.name}
+                  onBlur={(e) => {
+                    const name = e.target.value.trim();
+                    if (name && name !== p.name)
+                      void act(() => renameProfile(p.id, name));
+                  }}
+                  className="flex-1 rounded border border-transparent bg-transparent px-1 py-0.5 font-medium transition hover:border-default focus:bg-surface-card focus:outline-none"
+                  style={{ font: "var(--type-label)" }}
+                />
+                {p.is_active && (
+                  <span className="fp-badge fp-badge--ok">
+                    <CircleCheck size={13} strokeWidth={2.5} aria-hidden />
+                    {t("active")}
+                  </span>
+                )}
+                <button
+                  onClick={() => {
+                    if (window.confirm(t("deleteConfirm", { name: p.name })))
+                      void act(() => deleteProfile(p.id));
+                  }}
+                  title={t("delete")}
+                  aria-label={t("delete")}
+                  className="transition hover:opacity-70"
+                  style={{ color: "var(--status-error)" }}
+                >
+                  <X size={18} strokeWidth={2} aria-hidden />
+                </button>
+              </div>
+              <dl
+                className="flex flex-wrap"
+                style={{
+                  gap: "var(--space-1) var(--space-5)",
+                  paddingLeft: 28,
+                  marginTop: "var(--space-2)",
+                  font: "var(--type-measure-sm)",
+                  color: "var(--text-tertiary)",
+                }}
+              >
+                <div>{t("nozzle")}: {Number(p.nozzle_mm).toFixed(1)} mm</div>
+                <div>{t("hole")}: {Number(p.hole_offset_mm).toFixed(2)} mm</div>
+                <div>{t("shaft")}: {Number(p.shaft_offset_mm).toFixed(2)} mm</div>
+                <div>{t("slot")}: {Number(p.slot_offset_mm).toFixed(2)} mm</div>
+              </dl>
+            </li>
+          ))}
+        </ul>
+
+        {user && (
+          <Link href="/calibrate" className="fp-btn fp-btn--primary" style={{ marginTop: "var(--space-6)" }}>
+            + {t("newProfile")}
+          </Link>
+        )}
+      </main>
+    </div>
   );
 }
