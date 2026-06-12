@@ -17,6 +17,7 @@ import AccountBar from "@/components/AccountBar";
 import { Logo } from "@/components/Logo";
 import MeasureWizard from "@/components/MeasureWizard";
 import ParamSlider from "@/components/ParamSlider";
+import PartRequestPanel from "@/components/PartRequestPanel";
 import {
   Badge,
   Button,
@@ -285,6 +286,8 @@ export default function CreatePage() {
               options={ARCHETYPES.map((a) => ({ value: a, label: t(`archetypes.${a}`) }))}
             />
           </Field>
+
+          <PartRequestPanel />
 
           {ARCHETYPE_UI[archetype].fields.map(renderField)}
 

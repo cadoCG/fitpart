@@ -15,6 +15,14 @@ export const ArchetypeEnum = z.enum([
   "device_holder",
 ]);
 
+/**
+ * Schwelle für die Vision-Sicherheit (ADR-002). Liegt archetype_confidence
+ * darunter, zwingt die App das Foto nicht in eine womöglich falsche Vorlage,
+ * sondern bietet den "kein passender Treffer"-Pfad an (Warteliste). Startwert –
+ * anhand der Nutzungsdaten nachjustieren.
+ */
+export const ARCHETYPE_CONFIDENCE_THRESHOLD = 0.6;
+
 /** Vom LLM aus dem Foto geschätztes Mass (Slider-korrigierbar, nie kritisch). */
 export const DerivedDim = z.object({
   param: z.string(),

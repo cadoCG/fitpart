@@ -47,9 +47,12 @@ ${paramList}
 Regeln:
 - archetype_confidence ist deine Sicherheit zwischen 0 und 1.
 - alternative_archetypes: plausible Alternativen, falls unsicher (sonst leer).
-- derived_dims: nur Masse, die du aus dem Foto grob schätzen kannst
-  (z. B. über Referenzobjekte). Lieber wenige plausible Werte als viele
-  geratene. Kritische Passmasse misst der User danach selbst.
+- derived_dims: Startschätzungen der Masse des gezeigten Teils, soweit du sie
+  aus dem Foto grob ablesen kannst (z. B. über Referenzobjekte wie Schrauben,
+  Münzen, Hand). Der User reproduziert ein vorhandenes/defektes Teil und misst
+  die formgebenden Masse (Breite, Länge, Bohrung) danach am Original nach –
+  deine Schätzungen dienen nur als Vorbelegung. Lieber wenige plausible Werte
+  als viele geratene.
 - notes_de: kurzer hilfreicher Hinweis auf Deutsch (de-CH, "ss" statt "ß"),
   z. B. erkennbare Bruchursache oder Material-Tipp. Leerer String, wenn nichts
   Relevantes auffällt.`;

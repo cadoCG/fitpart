@@ -39,7 +39,7 @@
       "height": "Höhe",
       "fit": "Passung",
       "unit_mm": "mm",
-      "hook_depth": "Hakenspalt (Objektdicke)",
+      "hook_depth": "Hakentiefe (Spalt)",
       "width": "Breite",
       "thickness": "Materialdicke",
       "back_height": "Höhe Rückplatte",
@@ -143,26 +143,85 @@
     "finish": "Übernehmen",
     "rangeHint": "Wert wird auf den gültigen Bereich {min}–{max} mm begrenzt.",
     "questions": {
-      "inner_d": "Wie dick ist die Schraube oder Welle, die durch die Hülse geht? (mm)",
-      "hook_depth": "Wie dick ist das Objekt, das am Haken hängen soll? (mm)",
-      "screw_d": "Welche Schraube verwendest du? (Durchmesser in mm, z. B. 4 für M4)",
-      "leg_a": "Wie lang muss der horizontale Schenkel (Auflage) sein? (mm)",
-      "leg_b": "Wie lang muss der vertikale Schenkel sein? (mm)",
-      "pipe_d": "Wie dick ist das Rohr bzw. die Stange aussen? (mm)",
-      "cable_d": "Wie dick ist das Kabel? (mm)",
-      "device_w": "Wie breit ist das Gerät? (mm)",
-      "device_d": "Wie tief ist das Gerät? (mm)"
+      "spacer": {
+        "inner_d": "Wie gross ist das Loch der Hülse innen? (mm)",
+        "outer_d": "Wie dick ist die Hülse aussen? (mm)",
+        "height": "Wie lang ist die Hülse? (mm)"
+      },
+      "wall_hook": {
+        "hook_depth": "Wie tief ist der Hakenspalt – wie weit greift er ums Objekt? (mm)",
+        "width": "Wie breit ist der Haken? (mm)",
+        "screw_d": "Welche Schraube hält den Haken? (⌀ in mm, z. B. 4 für M4)"
+      },
+      "l_bracket": {
+        "leg_a": "Wie lang ist der eine Schenkel des Winkels? (mm)",
+        "leg_b": "Wie lang ist der andere Schenkel? (mm)",
+        "width": "Wie breit ist der Winkel? (mm)",
+        "screw_d": "Welche Schraube verwendest du? (⌀ in mm, z. B. 4 für M4)"
+      },
+      "pipe_clip": {
+        "pipe_d": "Wie dick ist das Rohr bzw. die Stange aussen? (mm)",
+        "width": "Wie breit ist der Clip? (mm)"
+      },
+      "cable_clip": {
+        "cable_d": "Wie dick ist das Kabel? (mm)",
+        "channels": "Wie viele Kabel soll der Clip halten? (1–4)"
+      },
+      "device_holder": {
+        "device_w": "Wie breit ist das Gerät? (mm)",
+        "device_d": "Wie tief ist das Gerät? (mm)"
+      }
     },
     "hints": {
-      "inner_d": "Mit dem Messschieber am Gewinde-Aussendurchmesser messen – oder die M-Grösse nehmen (M5 = 5 mm).",
-      "hook_depth": "Mit dem Messschieber an der dicksten Stelle des Objekts messen.",
-      "screw_d": "Die M-Grösse entspricht dem Durchmesser: M4 = 4 mm.",
-      "leg_a": "Vom Eckpunkt bis zum Ende der Auflagefläche messen.",
-      "leg_b": "Vom Eckpunkt bis zum Ende der Wandanlage messen.",
-      "pipe_d": "Mit dem Messschieber direkt am Rohr messen (Aussendurchmesser).",
-      "cable_d": "An der dicksten Stelle inklusive Mantel messen.",
-      "device_w": "Mit dem Messschieber oder Lineal direkt am Gerät messen.",
-      "device_d": "Tiefe des Geräts an der dicksten Stelle messen."
+      "spacer": {
+        "inner_d": "Innendurchmesser messen – oder die Schraube/Welle, die durchgeht (M5 = 5 mm).",
+        "outer_d": "Aussendurchmesser mit dem Messschieber an der dicksten Stelle messen.",
+        "height": "Die Länge der Hülse entlang der Achse messen."
+      },
+      "wall_hook": {
+        "hook_depth": "Lichten Abstand zwischen Rückwand und Lippe messen – oder die Dicke des Objekts, das einhängt.",
+        "width": "Die Breite des Hakens quer zum Profil messen.",
+        "screw_d": "Schraubendurchmesser messen – die M-Grösse entspricht dem ⌀ (M4 = 4 mm)."
+      },
+      "l_bracket": {
+        "leg_a": "Vom Innen-Eck bis zum Ende des Schenkels messen.",
+        "leg_b": "Vom Innen-Eck bis zum Ende des anderen Schenkels messen.",
+        "width": "Die Breite des Schenkels quer messen.",
+        "screw_d": "Die M-Grösse entspricht dem Durchmesser: M4 = 4 mm."
+      },
+      "pipe_clip": {
+        "pipe_d": "Mit dem Messschieber direkt am Rohr messen (Aussendurchmesser).",
+        "width": "Die Breite des Clips entlang des Rohrs messen."
+      },
+      "cable_clip": {
+        "cable_d": "An der dicksten Stelle inklusive Mantel messen.",
+        "channels": "Anzahl Kabel, die nebeneinander in den Clip sollen."
+      },
+      "device_holder": {
+        "device_w": "Mit dem Messschieber oder Lineal direkt am Gerät messen.",
+        "device_d": "Tiefe des Geräts an der dicksten Stelle messen."
+      }
+    },
+    "noMatch": {
+      "trigger": "Keiner davon passt?",
+      "heading": "Kein sicherer Treffer",
+      "sub": "FitPart ist sich bei diesem Teil nicht sicher – vielleicht gibt es dafür noch keine passende Vorlage. Beschreib kurz, was du brauchst, dann nehmen wir es auf die Liste.",
+      "confidenceLow": "Sicherheit nur {percent} % – darum fragen wir lieber nach.",
+      "descriptionLabel": "Was ist das für ein Teil? Wofür brauchst du es?",
+      "descriptionPlaceholder": "z. B. Halterung für einen runden Besenstiel an der Wand, ca. 25 mm Durchmesser …",
+      "emailLabel": "E-Mail (optional)",
+      "emailHint": "Nur, falls wir dich benachrichtigen sollen, sobald es die Vorlage gibt.",
+      "sharePhoto": "Mein Foto mitsenden, damit wir diesen Teil-Typ besser einordnen können.",
+      "submit": "Anfrage senden",
+      "submitting": "Sende …",
+      "cancel": "Abbrechen",
+      "errorSubmit": "Konnte die Anfrage nicht senden",
+      "doneTitle": "Danke – notiert!",
+      "doneBody": "Wir priorisieren neue Vorlagen nach Nachfrage. Du kannst trotzdem unten einen bestehenden Typ manuell wählen.",
+      "doneBodyShort": "Wir priorisieren neue Vorlagen nach Nachfrage.",
+      "chooseAnyway": "Trotzdem Typ manuell wählen",
+      "missingTypeTrigger": "Dein Teil ist nicht dabei?",
+      "missingTypeHeading": "Teil beschreiben"
     }
   },
   "Auth": {

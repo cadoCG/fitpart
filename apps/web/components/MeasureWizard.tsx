@@ -4,12 +4,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Camera, CircleCheck, Lightbulb, Ruler, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
+  ARCHETYPE_CONFIDENCE_THRESHOLD,
   ARCHETYPE_UI,
   CRITICAL_DIMS,
   type AnalyzeResult,
   type Archetype,
 } from "@fitpart/shared";
 import { Button, Panel, ProgressBar, Stepper, TypeCard } from "@/components/ui";
+import { useUser } from "@/lib/useUser";
+import { submitPartRequest } from "@/lib/partRequest";
 
 /**
  * Geführter Einstieg als Vollbild-Stepper (Foto → Bauteil-Typ → Messen),
@@ -29,7 +32,7 @@ type Props = {
   ) => void;
 };
 
-type Phase = "upload" | "analyzing" | "suggest" | "measure";
+type Phase = "upload" | "analyzing" | "suggest" | "nomatch" | "measure";
 
 const MAX_EDGE_PX = 1568;
 
@@ -65,9 +68,13 @@ function sliderRange(archetype: Archetype, param: string) {
 const clamp = (v: number, min: number, max: number) =>
   Math.min(max, Math.max(min, v));
 
+// Zähl-Parameter (Stückzahl statt Länge) – kein "mm"-Suffix im Messfeld.
+const COUNT_PARAMS = new Set(["channels", "holes_per_leg"]);
+
 export default function MeasureWizard({ onComplete }: Props) {
   const t = useTranslations("Measure");
   const tc = useTranslations("Create");
+  const { user } = useUser();
   const [open, setOpen] = useState(false);
   const [phase, setPhase] = useState<Phase>("upload");
   const [error, setError] = useState<string | null>(null);
@@ -77,6 +84,14 @@ export default function MeasureWizard({ onComplete }: Props) {
   const [archetype, setArchetype] = useState<Archetype>("spacer");
   const [stepIndex, setStepIndex] = useState(0);
   const [measured, setMeasured] = useState<Record<string, number>>({});
+  // "Kein passender Treffer"-Anfrage (ADR-002).
+  const [reqDescription, setReqDescription] = useState("");
+  const [reqEmail, setReqEmail] = useState("");
+  const [sharePhoto, setSharePhoto] = useState(false);
+  const [submitState, setSubmitState] = useState<"idle" | "sending" | "done">(
+    "idle",
+  );
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const close = useCallback(() => {
@@ -87,6 +102,11 @@ export default function MeasureWizard({ onComplete }: Props) {
     setError(null);
     setStepIndex(0);
     setMeasured({});
+    setReqDescription("");
+    setReqEmail("");
+    setSharePhoto(false);
+    setSubmitState("idle");
+    setSubmitError(null);
     if (fileRef.current) fileRef.current.value = "";
   }, []);
 
@@ -118,7 +138,13 @@ export default function MeasureWizard({ onComplete }: Props) {
       const data = (await res.json()) as AnalyzeResult;
       setResult(data);
       setArchetype(data.archetype);
-      setPhase("suggest");
+      // Unsicherer Treffer → nicht in eine womöglich falsche Vorlage zwingen,
+      // sondern den "kein passender Treffer"-Pfad anbieten (ADR-002).
+      setPhase(
+        data.archetype_confidence < ARCHETYPE_CONFIDENCE_THRESHOLD
+          ? "nomatch"
+          : "suggest",
+      );
     } catch (e) {
       setError(
         `${t("errorAnalyze")}: ${e instanceof Error ? e.message : String(e)}`,
@@ -153,6 +179,41 @@ export default function MeasureWizard({ onComplete }: Props) {
     setPhase("measure");
   };
 
+  // Zurück auf den Foto-Schritt (verwirft Analyse + offene Anfrage).
+  const resetToUpload = () => {
+    setPhase("upload");
+    setPhoto(null);
+    setResult(null);
+    setSubmitState("idle");
+    setSubmitError(null);
+    setReqDescription("");
+    if (fileRef.current) fileRef.current.value = "";
+  };
+
+  // "Kein passender Treffer"-Anfrage absenden (Warteliste/Roadmap-Signal).
+  const submitRequest = async () => {
+    setSubmitError(null);
+    setSubmitState("sending");
+    try {
+      await submitPartRequest({
+        description: reqDescription,
+        suggested_archetype: result?.archetype,
+        confidence: result?.archetype_confidence,
+        email: reqEmail.trim() || undefined,
+        share_photo: sharePhoto,
+        ...(sharePhoto && photo
+          ? { image: photo, media_type: "image/jpeg" }
+          : {}),
+      });
+      setSubmitState("done");
+    } catch (e) {
+      setSubmitError(
+        `${t("noMatch.errorSubmit")}: ${e instanceof Error ? e.message : String(e)}`,
+      );
+      setSubmitState("idle");
+    }
+  };
+
   const finish = (finalMeasured: Record<string, number>) => {
     const params: ParamValues = {
       ...ARCHETYPE_UI[archetype].defaults,
@@ -165,7 +226,12 @@ export default function MeasureWizard({ onComplete }: Props) {
     onComplete(a, params, notes);
   };
 
-  const stepperIndex = phase === "measure" ? 2 : phase === "suggest" ? 1 : 0;
+  const stepperIndex =
+    phase === "measure"
+      ? 2
+      : phase === "suggest" || phase === "nomatch"
+        ? 1
+        : 0;
 
   // ---- Eintrittskarte in der Sidebar ----
   if (!open) {
@@ -359,6 +425,24 @@ export default function MeasureWizard({ onComplete }: Props) {
               </div>
             </div>
 
+            <button
+              type="button"
+              onClick={() => setPhase("nomatch")}
+              style={{
+                marginTop: "var(--space-3)",
+                font: "var(--type-body-sm)",
+                color: "var(--text-secondary)",
+                textDecoration: "underline",
+                textUnderlineOffset: 3,
+                background: "none",
+                border: 0,
+                cursor: "pointer",
+                width: "fit-content",
+              }}
+            >
+              {t("noMatch.trigger")}
+            </button>
+
             {result.notes_de && (
               <div style={{ marginTop: "var(--space-5)" }}>
                 <Panel
@@ -390,6 +474,167 @@ export default function MeasureWizard({ onComplete }: Props) {
           </section>
         )}
 
+        {/* Schritt 2b: Kein passender Treffer → Warteliste (ADR-002) */}
+        {phase === "nomatch" && (
+          <section>
+            {submitState === "done" ? (
+              <>
+                <h1 style={{ font: "var(--type-h2)", margin: 0 }}>
+                  {t("noMatch.doneTitle")}
+                </h1>
+                <p
+                  style={{
+                    font: "var(--type-body-sm)",
+                    color: "var(--text-secondary)",
+                    margin: "var(--space-2) 0 var(--space-6)",
+                    textWrap: "pretty",
+                  }}
+                >
+                  {t("noMatch.doneBody")}
+                </p>
+                <div className="flex" style={{ gap: "var(--space-2)" }}>
+                  <Button variant="secondary" onClick={resetToUpload}>
+                    {t("replacePhoto")}
+                  </Button>
+                  {result && (
+                    <Button block onClick={() => setPhase("suggest")}>
+                      {t("noMatch.chooseAnyway")} →
+                    </Button>
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                <h1 style={{ font: "var(--type-h2)", margin: 0 }}>
+                  {t("noMatch.heading")}
+                </h1>
+                <p
+                  style={{
+                    font: "var(--type-body-sm)",
+                    color: "var(--text-secondary)",
+                    margin: "var(--space-1) 0 var(--space-6)",
+                    textWrap: "pretty",
+                  }}
+                >
+                  {t("noMatch.sub")}
+                </p>
+
+                <div className="fpk-wizrow">
+                  {photo && (
+                    <img
+                      src={`data:image/jpeg;base64,${photo}`}
+                      alt=""
+                      className="fpk-photo"
+                    />
+                  )}
+                  <div
+                    className="flex flex-1 flex-col"
+                    style={{ gap: "var(--space-4)", minWidth: 0 }}
+                  >
+                    {result && (
+                      <p
+                        style={{
+                          font: "var(--type-body-sm)",
+                          color: "var(--text-tertiary)",
+                          margin: 0,
+                        }}
+                      >
+                        {t("noMatch.confidenceLow", {
+                          percent: Math.round(
+                            result.archetype_confidence * 100,
+                          ),
+                        })}
+                      </p>
+                    )}
+
+                    <label className="flex flex-col" style={{ gap: "var(--space-2)" }}>
+                      <span style={{ font: "var(--type-label)" }}>
+                        {t("noMatch.descriptionLabel")}
+                      </span>
+                      <textarea
+                        className="fp-input"
+                        rows={4}
+                        value={reqDescription}
+                        onChange={(e) => setReqDescription(e.target.value)}
+                        placeholder={t("noMatch.descriptionPlaceholder")}
+                        maxLength={2000}
+                        style={{ resize: "vertical" }}
+                        autoFocus
+                      />
+                    </label>
+
+                    {!user && (
+                      <label className="flex flex-col" style={{ gap: "var(--space-2)" }}>
+                        <span style={{ font: "var(--type-label)" }}>
+                          {t("noMatch.emailLabel")}
+                        </span>
+                        <input
+                          type="email"
+                          className="fp-input"
+                          value={reqEmail}
+                          onChange={(e) => setReqEmail(e.target.value)}
+                          placeholder="deine@email.ch"
+                          autoComplete="email"
+                        />
+                        <span
+                          style={{
+                            font: "var(--type-body-sm)",
+                            color: "var(--text-tertiary)",
+                          }}
+                        >
+                          {t("noMatch.emailHint")}
+                        </span>
+                      </label>
+                    )}
+
+                    {photo && (
+                      <label className="fp-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={sharePhoto}
+                          onChange={(e) => setSharePhoto(e.target.checked)}
+                        />
+                        <span>{t("noMatch.sharePhoto")}</span>
+                      </label>
+                    )}
+
+                    {submitError && (
+                      <div className="fp-panel fp-panel--error">{submitError}</div>
+                    )}
+                  </div>
+                </div>
+
+                <div
+                  className="flex"
+                  style={{ gap: "var(--space-2)", marginTop: "var(--space-6)" }}
+                >
+                  <Button
+                    variant="secondary"
+                    onClick={() =>
+                      result ? setPhase("suggest") : resetToUpload()
+                    }
+                  >
+                    {result ? t("noMatch.chooseAnyway") : t("replacePhoto")}
+                  </Button>
+                  <Button
+                    block
+                    onClick={() => void submitRequest()}
+                    loading={submitState === "sending"}
+                    disabled={
+                      reqDescription.trim().length < 3 ||
+                      submitState === "sending"
+                    }
+                  >
+                    {submitState === "sending"
+                      ? t("noMatch.submitting")
+                      : t("noMatch.submit")}
+                  </Button>
+                </div>
+              </>
+            )}
+          </section>
+        )}
+
         {/* Schritt 3: Messen */}
         {phase === "measure" &&
           (() => {
@@ -417,7 +662,7 @@ export default function MeasureWizard({ onComplete }: Props) {
                   )}
                   <div className="flex-1">
                     <h1 style={{ font: "var(--type-h2)", margin: 0, textWrap: "pretty" }}>
-                      {t(`questions.${currentParam}`)}
+                      {t(`questions.${archetype}.${currentParam}`)}
                     </h1>
                     <p
                       className="flex gap-2"
@@ -428,7 +673,7 @@ export default function MeasureWizard({ onComplete }: Props) {
                       }}
                     >
                       <Ruler size={16} strokeWidth={2} className="mt-0.5 shrink-0" aria-hidden />
-                      {t(`hints.${currentParam}`)}
+                      {t(`hints.${archetype}.${currentParam}`)}
                     </p>
 
                     <span className="inline-flex items-baseline" style={{ gap: "var(--space-2)" }}>
@@ -448,15 +693,17 @@ export default function MeasureWizard({ onComplete }: Props) {
                         }
                         autoFocus
                       />
-                      <span
-                        style={{
-                          font: "var(--type-measure)",
-                          fontSize: "var(--text-lg)",
-                          color: "var(--text-tertiary)",
-                        }}
-                      >
-                        mm
-                      </span>
+                      {!COUNT_PARAMS.has(currentParam) && (
+                        <span
+                          style={{
+                            font: "var(--type-measure)",
+                            fontSize: "var(--text-lg)",
+                            color: "var(--text-tertiary)",
+                          }}
+                        >
+                          mm
+                        </span>
+                      )}
                     </span>
                     {range && (value < range.min || value > range.max) && (
                       <p

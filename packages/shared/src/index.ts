@@ -11,6 +11,7 @@ import { DeviceHolderParams } from "./archetypes/device_holder";
 export * from "./tolerance";
 export * from "./calibration";
 export * from "./analyze";
+export * from "./part_request";
 export * from "./archetypes/spacer";
 export * from "./archetypes/wall_hook";
 export * from "./archetypes/l_bracket";
@@ -33,17 +34,25 @@ export type Archetype = keyof typeof ARCHETYPE_SCHEMAS;
 export const ARCHETYPES = Object.keys(ARCHETYPE_SCHEMAS) as Archetype[];
 
 /**
- * Kritische Masse pro Archetyp – müssen vom User gemessen werden, der
- * MeasureWizard fragt sie Schritt für Schritt ab (Spez: docs/archetypes/).
+ * Kritische Masse pro Archetyp – die der User am vorhandenen (defekten) Teil
+ * mit dem Messschieber abmisst, statt sie aus dem Foto zu schätzen. Der
+ * MeasureWizard fragt sie Schritt für Schritt ab; Fokus liegt auf den
+ * formgebenden Massen des Teils selbst (Breite, Länge, Bohrung), nicht auf
+ * abstrakten Bedarfsangaben. Restliche Masse: Default + Slider-Korrektur.
  * `satisfies` erzwingt, dass jeder Archetyp abgedeckt ist; der Re-Export von
  * ArchetypeEnum aus analyze.ts wird darüber implizit mitgeprüft.
+ *
+ * Nur Slider-/Int-Parameter aufnehmen (der Wizard rendert ein Zahlenfeld) –
+ * keine boolean/select/fit-Felder. Kreuz-Constraints der Zod-Modelle beachten:
+ * abhängige Masse (z. B. wall_hook.back_height) bleiben Default, um
+ * Validierungsfehler bei Extremwerten zu vermeiden.
  */
 export const CRITICAL_DIMS = {
-  spacer: ["inner_d"],
-  wall_hook: ["hook_depth", "screw_d"],
-  l_bracket: ["leg_a", "leg_b", "screw_d"],
-  pipe_clip: ["pipe_d"],
-  cable_clip: ["cable_d"],
+  spacer: ["inner_d", "outer_d", "height"],
+  wall_hook: ["hook_depth", "width", "screw_d"],
+  l_bracket: ["leg_a", "leg_b", "width", "screw_d"],
+  pipe_clip: ["pipe_d", "width"],
+  cable_clip: ["cable_d", "channels"],
   device_holder: ["device_w", "device_d"],
 } as const satisfies Record<Archetype, readonly string[]>;
 
