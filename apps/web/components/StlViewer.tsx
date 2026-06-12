@@ -268,6 +268,7 @@ function DimensionLine({
           )}
           <input
             type="number"
+            className="fp-dim-input"
             aria-label={dim.label}
             value={Number.isFinite(dim.value) ? dim.value : ""}
             min={dim.min}
@@ -283,14 +284,13 @@ function DimensionLine({
             onKeyDown={(e) => {
               if (e.key === "Enter") (e.target as HTMLInputElement).blur();
             }}
+            // Breite wächst mit der Ziffernzahl (mono + tabular-nums → ch ist
+            // exakt); +Padding/Border, min. 2 Stellen, damit nichts abschneidet.
             style={{
-              width: 48,
-              font: "var(--type-measure, 500 14px monospace)",
-              textAlign: "right",
-              border: "1px solid var(--border-default, #ddd)",
-              borderRadius: 6,
-              padding: "1px 5px",
-              background: "var(--surface-page, #fafafa)",
+              width: `calc(${Math.max(
+                2,
+                String(Number.isFinite(dim.value) ? dim.value : "").length,
+              )}ch + 16px)`,
             }}
           />
           <span style={{ fontSize: 10, color: "var(--text-tertiary, #999)" }}>

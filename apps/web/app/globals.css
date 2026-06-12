@@ -482,6 +482,30 @@ body {
   border-radius: var(--radius-md);
 }
 
+/* Zahlenfeld der 3D-Bemassungs-Pills: wächst mit der Ziffernzahl (Breite in
+   ch, inline gesetzt), ohne native Spinner – geändert wird durch Tippen oder
+   Ziehen am Griff. */
+.fp-dim-input {
+  font: var(--weight-medium) var(--text-base) / 1.2 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  padding: 2px 6px;
+  background: var(--surface-page);
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.fp-dim-input::-webkit-inner-spin-button,
+.fp-dim-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.fp-dim-input:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
 /* ---------- Slider ---------- */
 .fp-slider { width: 100%; }
 .fp-slider__head {
