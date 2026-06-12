@@ -24,6 +24,8 @@ GOLDEN_PARAMS: dict[str, dict] = {
     "pipe_clip": {"pipe_d": 20.0},
     "cable_clip": {"cable_d": 6.0, "channels": 2},
     "device_holder": {"device_w": 70.0, "device_d": 12.0},
+    "knob": {"shaft_d": 6.0, "d_flat": 4.5, "knob_d": 25.0},
+    "adapter_ring": {"outer_d": 32.0, "inner_d": 25.0},
     # Coupon-Golden ohne Beschriftung → schriftart-unabhängig deterministisch.
     "calibration_coupon": {"labels": False},
 }

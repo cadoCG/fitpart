@@ -76,7 +76,29 @@ Briefing) – 6 Archetypen, Kalibrier-Coupon, kein Payment.
       angemeldet in die Cloud, localStorage bleibt anonymer Fallback.
       Hinweis: 20260611190044 wurde leer gepusht, Inhalt steckt in
       20260611190318_tighten_grants_v2.
-- [ ] Deploy: Vercel + CAD-Container auf VPS (nginx, cad.fitpart.app)
+- [x] Deploy (12.06.2026, Ende-zu-Ende verifiziert): Web auf Vercel
+      (fitpart.app, Env: CAD_SERVICE_URL + CAD_SHARED_SECRET), CAD-Container
+      auf Hostinger-VPS unter /opt/fitpart (docker compose, Loopback-Bind),
+      nginx-Reverse-Proxy cad.fitpart.app mit TLS (certbot) + Rate-Limit-Zone
+      in /etc/nginx/conf.d/cad-rate-limit.conf. Secret liegt in
+      /opt/fitpart/infra/.env. VPS-Pull nur nötig, wenn services/cad/ ändert.
+
+**Phase 1 (MVP) ist damit komplett.**
+
+**Phase 2 (begonnen):**
+- [x] fit_feedback-Loop: Tabelle parts + RPCs (record_part,
+      submit_fit_feedback, get_part_for_feedback) + View feedback_due für
+      n8n (Migration 20260612140000), /api/parts + /api/feedback,
+      FeedbackPrompt auf /create (48 h, localStorage – deckt anon ab),
+      /feedback/[token] für den Mail-Link. Betrieb/n8n: docs/feedback-loop.md.
+      ACHTUNG: Migration muss noch gepusht werden (supabase db push braucht
+      SUPABASE_DB_PASSWORD) und der n8n-Flow eingerichtet.
+- [x] Archetypen knob (Drehknopf, D-Welle) + adapter_ring (Reduzierhülse,
+      einziger Archetyp mit zwei Fit-Feldern fit_outer/fit_inner) – je
+      Template + Zod-Spiegel + Tests + golden + Spez + Vision-Prompt.
+- [ ] 6 weitere Phase-2-Archetypen (Reparatur-Cluster, Briefing 6)
+- [ ] Beta-Launch (Reddit/Foren), Analytics
+- [ ] Stripe (Free/Maker/Pro + Pay-per-Part), TWINT
 
 Goldene Referenzen regenerieren (nur bei bewusster Geometrie-Änderung):
 `services/cad/.venv/bin/python services/cad/scripts/make_golden.py`

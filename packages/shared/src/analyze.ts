@@ -13,6 +13,8 @@ export const ArchetypeEnum = z.enum([
   "pipe_clip",
   "cable_clip",
   "device_holder",
+  "knob",
+  "adapter_ring",
 ]);
 
 /**

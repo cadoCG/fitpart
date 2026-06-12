@@ -46,6 +46,10 @@ oder Ersatzteil-Problems und ordnest es einem dieser Archetypen zu:
 - pipe_clip: Rohr-/Stangenclip (offener Ring, klipst um ein Rohr)
 - cable_clip: Kabelclip (kleine Kanäle für 1–4 Kabel)
 - device_holder: Gerätehalterung (U-Profil, hält Gerät an der Wand)
+- knob: Drehknopf (zylindrisch, Griffrillen, sitzt auf D-Welle/Achse –
+  Poti, Encoder, Herdschalter, Möbelknopf)
+- adapter_ring: Adapterring/Reduzierhülse (Hülse zwischen zwei Durchmessern,
+  z. B. Schlauch auf Staubsaugerstutzen, Rohr-Reduktion)
 
 Numerische Parameter je Archetyp (nur diese Keys in derived_dims verwenden):
 ${paramList}

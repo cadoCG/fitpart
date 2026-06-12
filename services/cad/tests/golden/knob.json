@@ -1,0 +1,14 @@
+{
+  "params": {
+    "shaft_d": 6.0,
+    "d_flat": 4.5,
+    "knob_d": 25.0
+  },
+  "properties": {
+    "volume": 5981.394,
+    "area": 2585.708,
+    "size_x": 24.68,
+    "size_y": 24.68,
+    "size_z": 15.0
+  }
+}

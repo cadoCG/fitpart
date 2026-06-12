@@ -7,18 +7,23 @@ import { LBracketParams } from "./archetypes/l_bracket";
 import { PipeClipParams } from "./archetypes/pipe_clip";
 import { CableClipParams } from "./archetypes/cable_clip";
 import { DeviceHolderParams } from "./archetypes/device_holder";
+import { KnobParams } from "./archetypes/knob";
+import { AdapterRingParams } from "./archetypes/adapter_ring";
 
 export * from "./tolerance";
 export * from "./calibration";
 export * from "./analyze";
 export * from "./part_request";
 export * from "./dimensions";
+export * from "./feedback";
 export * from "./archetypes/spacer";
 export * from "./archetypes/wall_hook";
 export * from "./archetypes/l_bracket";
 export * from "./archetypes/pipe_clip";
 export * from "./archetypes/cable_clip";
 export * from "./archetypes/device_holder";
+export * from "./archetypes/knob";
+export * from "./archetypes/adapter_ring";
 export * from "./ui";
 
 /** Bekannte Archetypen → Zod-Param-Schema (muss mit der CAD-Registry übereinstimmen). */
@@ -29,6 +34,8 @@ export const ARCHETYPE_SCHEMAS = {
   pipe_clip: PipeClipParams,
   cable_clip: CableClipParams,
   device_holder: DeviceHolderParams,
+  knob: KnobParams,
+  adapter_ring: AdapterRingParams,
 } as const;
 
 export type Archetype = keyof typeof ARCHETYPE_SCHEMAS;
@@ -55,6 +62,8 @@ export const CRITICAL_DIMS = {
   pipe_clip: ["pipe_d", "width"],
   cable_clip: ["cable_d", "channels"],
   device_holder: ["device_w", "device_d"],
+  knob: ["shaft_d", "d_flat", "knob_d"],
+  adapter_ring: ["outer_d", "inner_d", "height"],
 } as const satisfies Record<Archetype, readonly string[]>;
 
 // Compile-Check: ArchetypeEnum (analyze.ts) und Registry decken sich.

@@ -16,6 +16,7 @@ import {
   type ToleranceProfile,
 } from "@fitpart/shared";
 import AccountBar from "@/components/AccountBar";
+import FeedbackPrompt from "@/components/FeedbackPrompt";
 import { Logo } from "@/components/Logo";
 import MeasureWizard from "@/components/MeasureWizard";
 import ParamSlider from "@/components/ParamSlider";
@@ -28,6 +29,7 @@ import {
   Select,
   ViewerFrame,
 } from "@/components/ui";
+import { recordDownload } from "@/lib/feedback";
 import { loadActiveTolerance } from "@/lib/profiles";
 
 // three/WebGL nur im Browser laden.
@@ -168,11 +170,27 @@ export default function CreatePage() {
     URL.revokeObjectURL(url);
   };
 
+  // Download für den fit_feedback-Loop protokollieren (fire-and-forget,
+  // stört den Download nie). 48 h später fragt FeedbackPrompt nach.
+  const logDownload = (format: "stl" | "3mf") => {
+    const parsed = ARCHETYPE_SCHEMAS[archetype].safeParse(params);
+    if (!parsed.success) return;
+    void recordDownload({
+      archetype,
+      params: parsed.data,
+      ...(profile ? { tolerance_profile: profile } : {}),
+      format,
+    });
+  };
+
   // STL kommt aus der Vorschau (gecacht); 3MF wird frisch geholt, weil es
   // zusätzlich die Druckempfehlung als Metadaten trägt.
   const download = async (format: "stl" | "3mf") => {
     if (format === "stl") {
-      if (stl) saveBlob(stl, "model/stl", "stl");
+      if (stl) {
+        saveBlob(stl, "model/stl", "stl");
+        logDownload("stl");
+      }
       return;
     }
     const parsed = ARCHETYPE_SCHEMAS[archetype].safeParse(params);
@@ -191,6 +209,7 @@ export default function CreatePage() {
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       saveBlob(await res.arrayBuffer(), "model/3mf", "3mf");
+      logDownload("3mf");
     } catch (e) {
       setError(
         `${t("errorGenerate")}: ${e instanceof Error ? e.message : String(e)}`,
@@ -240,8 +259,10 @@ export default function CreatePage() {
           </label>
         );
       case "fit":
+        // Label über den Key auflösen – adapter_ring hat zwei Fit-Felder
+        // (fit_outer/fit_inner), alle anderen das generische "fit".
         return (
-          <Field key={field.key} label={t("params.fit")}>
+          <Field key={field.key} label={t(`params.${field.key}`)}>
             <Select
               value={String(value)}
               onChange={(e) => set(field.key, e.target.value)}
@@ -319,6 +340,8 @@ export default function CreatePage() {
           </header>
 
           <AccountBar />
+
+          <FeedbackPrompt />
 
           <MeasureWizard onComplete={applyWizardResult} />
 

@@ -21,8 +21,8 @@ ALL_ARCHETYPES = sorted(REGISTRY)
 
 def test_registry_complete():
     assert ALL_ARCHETYPES == [
-        "cable_clip", "calibration_coupon", "device_holder", "l_bracket",
-        "pipe_clip", "spacer", "wall_hook",
+        "adapter_ring", "cable_clip", "calibration_coupon", "device_holder",
+        "knob", "l_bracket", "pipe_clip", "spacer", "wall_hook",
     ]
 
 

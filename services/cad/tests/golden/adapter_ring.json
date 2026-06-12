@@ -1,0 +1,13 @@
+{
+  "params": {
+    "outer_d": 32.0,
+    "inner_d": 25.0
+  },
+  "properties": {
+    "volume": 5998.871,
+    "area": 4181.303,
+    "size_x": 31.85,
+    "size_y": 31.85,
+    "size_z": 20.0
+  }
+}

@@ -31,10 +31,12 @@
       "l_bracket": "L-Winkel / Regalträger",
       "pipe_clip": "Rohr-/Stangenclip",
       "cable_clip": "Kabelclip",
-      "device_holder": "Gerätehalterung"
+      "device_holder": "Gerätehalterung",
+      "knob": "Drehknopf (D-Welle)",
+      "adapter_ring": "Adapterring / Reduzierhülse"
     },
     "params": {
-      "inner_d": "Innendurchmesser (Schraube/Welle)",
+      "inner_d": "Innendurchmesser (Gegenstück)",
       "outer_d": "Aussendurchmesser",
       "height": "Höhe",
       "fit": "Passung",
@@ -59,7 +61,14 @@
       "mount": "Montage",
       "device_w": "Objektbreite",
       "device_d": "Objekttiefe",
-      "wall_mount": "Wandmontage (Schraublöcher)"
+      "wall_mount": "Wandmontage (Schraublöcher)",
+      "shaft_d": "Wellen-⌀",
+      "d_flat": "D-Mass (über Abflachung)",
+      "knob_d": "Knopf-⌀",
+      "ribs": "Griffrillen",
+      "collar": "Anschlagbund",
+      "fit_outer": "Passung aussen (Zapfen)",
+      "fit_inner": "Passung innen (Bohrung)"
     },
     "fit": {
       "press": "Press (kein Spiel)",
@@ -111,6 +120,16 @@
         "material": "PLA innen; PETG bei Wärme/Last",
         "orientation": "Mit der Rückplatte flach auf dem Druckbett drucken.",
         "infill": "30–50 %, 3 Perimeter"
+      },
+      "knob": {
+        "material": "PETG oder PLA; ABS/ASA bei Hitze (Herd)",
+        "orientation": "Stehend drucken, Bohrung nach oben – D-Form bleibt masshaltig, keine Stützen.",
+        "infill": "25–40 %, 3 Perimeter"
+      },
+      "adapter_ring": {
+        "material": "PETG (zäh, leicht nachgiebig beim Einstecken)",
+        "orientation": "Stehend drucken (Achse vertikal) – beide Durchmesser bleiben rund.",
+        "infill": "Dünnwandig: 4 Perimeter, Infill unkritisch"
       }
     },
     "viewerHint": "Ziehen zum Drehen · Scrollen zum Zoomen · Masse am Modell eintippen oder am Griff ziehen",
@@ -216,5 +235,31 @@
       "slot": "Nut-Offset",
       "applied": "Wird ab jetzt auf alle generierten Teile angewandt."
     }
+  },
+  "Feedback": {
+    "title": "Hat's gepasst?",
+    "partLine": "Dein Teil «{archetype}» vom {date}",
+    "verdict": {
+      "fits": "Passt",
+      "too_tight": "Zu eng",
+      "too_loose": "Zu locker",
+      "not_printed": "Noch nicht gedruckt"
+    },
+    "severityQuestion": "Wie deutlich?",
+    "severity": {
+      "slight": "Knapp daneben (≈ 0,1 mm)",
+      "strong": "Deutlich (≈ 0,3 mm)"
+    },
+    "commentLabel": "Kommentar (optional)",
+    "commentPlaceholder": "z. B. «Bohrung war zu stramm, Aussenmass top»",
+    "submit": "Absenden",
+    "later": "Später",
+    "thanks": "Danke! Dein Feedback macht die Passungen für alle besser.",
+    "calibrateHint": "Tipp: Mit dem Kalibrier-Coupon stimmst du deinen Drucker dauerhaft ab –",
+    "calibrateLink": "zur Kalibrierung",
+    "loading": "Lade …",
+    "invalid": "Dieser Feedback-Link ist ungültig oder abgelaufen.",
+    "already": "Für dieses Teil ist schon Feedback erfasst – du kannst es unten aktualisieren.",
+    "backToCreate": "Neues Teil erstellen"
   }
 }

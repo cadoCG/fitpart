@@ -105,4 +105,31 @@ export const ARCHETYPE_UI: Record<string, ArchetypeUi> = {
       wall: 3, wall_mount: true, screw_d: 4, fit: "sliding",
     },
   },
+  knob: {
+    fields: [
+      { key: "shaft_d", kind: "slider", min: 2, max: 20 },
+      { key: "d_flat", kind: "slider", min: 1, max: 20 },
+      { key: "knob_d", kind: "slider", min: 10, max: 80 },
+      { key: "height", kind: "slider", min: 8, max: 50 },
+      { key: "ribs", kind: "int", min: 0, max: 36 },
+      { key: "fit", kind: "fit" },
+    ],
+    defaults: {
+      shaft_d: 6, d_flat: 4.5, knob_d: 25, height: 15, ribs: 12, fit: "snug",
+    },
+  },
+  adapter_ring: {
+    fields: [
+      { key: "outer_d", kind: "slider", min: 6, max: 120 },
+      { key: "inner_d", kind: "slider", min: 2, max: 110 },
+      { key: "height", kind: "slider", min: 5, max: 120 },
+      { key: "collar", kind: "boolean" },
+      { key: "fit_outer", kind: "fit" },
+      { key: "fit_inner", kind: "fit" },
+    ],
+    defaults: {
+      outer_d: 32, inner_d: 25, height: 20, collar: false,
+      fit_outer: "snug", fit_inner: "snug",
+    },
+  },
 };
