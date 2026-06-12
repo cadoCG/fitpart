@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GenerateRequest } from "@fitpart/shared";
+import { cadHeaders } from "@/lib/cad";
 
 const CAD_SERVICE_URL = process.env.CAD_SERVICE_URL ?? "http://localhost:8000";
 
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest) {
 
   const upstream = await fetch(`${CAD_SERVICE_URL}/generate`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: cadHeaders(),
     body: JSON.stringify(parsed.data),
     cache: "no-store",
   });

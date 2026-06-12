@@ -11,3 +11,6 @@ services:
     restart: unless-stopped
     environment:
       - PYTHONUNBUFFERED=1
+      # Shared-Secret-Härtung (Vercel ↔ CAD): auf dem VPS in einer .env neben
+      # dieser Datei setzen (CAD_SHARED_SECRET=…). Leer = Schutz aus (lokal).
+      - CAD_SHARED_SECRET=${CAD_SHARED_SECRET:-}

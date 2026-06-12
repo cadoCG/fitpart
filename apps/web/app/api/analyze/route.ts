@@ -3,6 +3,8 @@ import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import { AnalyzeResult, ARCHETYPES, ARCHETYPE_UI } from "@fitpart/shared";
 import { checkRateLimit, clientIp } from "@/lib/rateLimit";
+import { createClient } from "@/lib/supabase/server";
+import { createHash } from "crypto";
 
 /**
  * Foto → Claude (Vision, Structured Output) → Archetyp-Vorschlag.
@@ -96,6 +98,41 @@ const RATE_WINDOWS = [
   { limit: 30, windowMs: 60 * 60_000 }, // 30 / Stunde
 ];
 
+// Durable Tages-Quota (Supabase): echter Deckel gegen Kosten-Missbrauch, da der
+// In-Memory-Limit oben auf Vercel pro Serverless-Instanz zählt. Per Env tunebar.
+const IP_DAILY_LIMIT = Number(process.env.ANALYZE_IP_DAILY_LIMIT ?? 15);
+const GLOBAL_DAILY_LIMIT = Number(process.env.ANALYZE_GLOBAL_DAILY_LIMIT ?? 300);
+// Statischer Salt nur zur Pseudonymisierung der IP (kein Geheimnis nötig).
+const IP_HASH_SALT = process.env.IP_HASH_SALT ?? "fitpart-analyze";
+
+/**
+ * Atomarer Tageszähler in Supabase (global + per gehashter IP). Failt bewusst
+ * OFFEN bei DB-Fehler – das Anthropic-Budget-Limit bleibt der harte Backstop,
+ * und ein DB-Ausfall soll die App nicht lahmlegen.
+ */
+async function withinDailyQuota(ip: string): Promise<boolean> {
+  try {
+    const ipHash = createHash("sha256")
+      .update(IP_HASH_SALT + ip)
+      .digest("hex")
+      .slice(0, 32);
+    const supabase = await createClient();
+    const { data, error } = await supabase.rpc("check_analyze_quota", {
+      p_ip_hash: ipHash,
+      p_ip_limit: IP_DAILY_LIMIT,
+      p_global_limit: GLOBAL_DAILY_LIMIT,
+    });
+    if (error) {
+      console.error("check_analyze_quota:", error.message);
+      return true;
+    }
+    return Boolean((data as { allowed?: boolean } | null)?.allowed);
+  } catch (e) {
+    console.error("check_analyze_quota threw:", e);
+    return true;
+  }
+}
+
 export async function POST(req: NextRequest) {
   const rate = checkRateLimit(`analyze:${clientIp(req.headers)}`, RATE_WINDOWS);
   if (!rate.ok) {
@@ -130,6 +167,18 @@ export async function POST(req: NextRequest) {
   }
   if (parsed.data.image.length > MAX_IMAGE_BASE64_CHARS) {
     return NextResponse.json({ error: "Bild zu gross" }, { status: 413 });
+  }
+
+  // Durable Tages-Quota erst hier (nach Validierung) prüfen, damit nur echte,
+  // wohlgeformte Analyse-Versuche das Kontingent verbrauchen.
+  if (!(await withinDailyQuota(clientIp(req.headers)))) {
+    return NextResponse.json(
+      {
+        error:
+          "Tageslimit für Analysen erreicht – bitte morgen erneut versuchen.",
+      },
+      { status: 429 },
+    );
   }
 
   const client = new Anthropic();

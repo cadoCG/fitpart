@@ -14,9 +14,11 @@ from __future__ import annotations
 
 import io
 import json
+import os
+from secrets import compare_digest
 
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import ValidationError
 
 from . import __version__
@@ -41,6 +43,21 @@ app = FastAPI(
     version=__version__,
     summary="Parametrische Funktionsteil-Generierung (build123d, Template-first)",
 )
+
+# Optionaler Shared-Secret-Schutz (Härtung Vercel ↔ CAD). Ist CAD_SHARED_SECRET
+# gesetzt, muss jeder Request ausser /health den Header X-CAD-Secret mit exakt
+# diesem Wert tragen – sonst 401. Ohne gesetztes Secret: No-op (lokal/Tests).
+CAD_SHARED_SECRET = os.environ.get("CAD_SHARED_SECRET", "")
+_PUBLIC_PATHS = {"/health"}
+
+
+@app.middleware("http")
+async def require_shared_secret(request: Request, call_next):
+    if CAD_SHARED_SECRET and request.url.path not in _PUBLIC_PATHS:
+        provided = request.headers.get("x-cad-secret", "")
+        if not compare_digest(provided, CAD_SHARED_SECRET):
+            return JSONResponse({"detail": "Unauthorized"}, status_code=401)
+    return await call_next(request)
 
 
 @app.get("/health")
