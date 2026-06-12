@@ -13,7 +13,11 @@ import { createHash } from "crypto";
  * Antwort wird gegen das geteilte Zod-Schema (AnalyzeResult) validiert.
  */
 
-const MODEL = "claude-opus-4-8";
+// Sonnet 4.6 statt Opus für die Bild-Klassifikation: ~40 % günstiger pro
+// Aufruf bei gleicher Parameter-Oberfläche (Vision + adaptive Thinking +
+// Structured Outputs). Für eine 6-fach-Klassifikation ausreichend; bei Bedarf
+// später per A/B auf Haiku 4.5 (nochmals günstiger, aber Qualität messen).
+const MODEL = "claude-sonnet-4-6";
 
 const AnalyzeRequest = z.object({
   image: z.string().min(1),
