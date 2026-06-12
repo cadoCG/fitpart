@@ -12,6 +12,7 @@ from __future__ import annotations
 from build123d import Box, Cylinder, Part, Pos, Rot
 from pydantic import BaseModel, Field, model_validator
 
+from ..dimensions import DimensionSpec
 from ..tolerance import FeatureType, FitClass, ToleranceProfile, effective_dim
 from .base import Template, register
 
@@ -64,11 +65,43 @@ def build(params: DeviceHolderParams, profile: ToleranceProfile | None = None) -
     return body
 
 
+def dimensions(
+    params: DeviceHolderParams, profile: ToleranceProfile | None = None
+) -> list[DimensionSpec]:
+    """Bemassungs-Anker (gleiche effektive Masse wie build())."""
+    wall = params.wall
+    w_eff = effective_dim(params.device_w, FeatureType.SLOT, params.fit, profile)
+    d_eff = effective_dim(params.device_d, FeatureType.SLOT, params.fit, profile)
+    width = w_eff + 2 * wall
+    front_h = wall + params.lip_height
+    back_h = params.back_height
+    return [
+        # Innenmasse der Schale – das, was der User am Gerät misst.
+        DimensionSpec(
+            param="device_w",
+            p1=(-w_eff / 2, wall + d_eff / 2, front_h),
+            p2=(w_eff / 2, wall + d_eff / 2, front_h),
+            offset_dir=(0, 0, 1),
+        ),
+        DimensionSpec(
+            param="device_d",
+            p1=(w_eff / 2, wall, front_h), p2=(w_eff / 2, wall + d_eff, front_h),
+            offset_dir=(1, 0, 0),
+        ),
+        DimensionSpec(
+            param="back_height",
+            p1=(-width / 2, 0, 0), p2=(-width / 2, 0, back_h),
+            offset_dir=(-1, 0, 0),
+        ),
+    ]
+
+
 TEMPLATE = register(
     Template(
         archetype="device_holder",
         params_model=DeviceHolderParams,
         build=build,
+        dimensions=dimensions,
         title_de="Gerätehalterung",
         description_de="U-Schale mit Rückplatte, Lippe und Wandmontage.",
         print_rec={

@@ -8,10 +8,13 @@ from typing import Callable, Type
 from build123d import Part
 from pydantic import BaseModel
 
+from ..dimensions import DimensionSpec
 from ..tolerance import ToleranceProfile
 
 # build(params, profile) -> Part
 BuildFn = Callable[[BaseModel, ToleranceProfile], Part]
+# dimensions(params, profile) -> Bemassungs-Anker für die 3D-Vorschau
+DimsFn = Callable[[BaseModel, ToleranceProfile | None], list[DimensionSpec]]
 
 
 @dataclass(frozen=True)
@@ -26,6 +29,8 @@ class Template:
     # Druckempfehlung (Material, Ausrichtung, Infill, …) – landet als
     # Metadaten im 3MF-Export und ist pro Archetyp kuratiert.
     print_rec: dict[str, str] = field(default_factory=dict)
+    # Optional: Bemassungs-Anker für die 3D-Vorschau (None = keine Bemassung).
+    dimensions: DimsFn | None = None
 
     def validate_params(self, raw: dict) -> BaseModel:
         """Roh-Parameter (vom LLM/Frontend) gegen das Pydantic-Modell prüfen."""

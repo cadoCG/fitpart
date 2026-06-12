@@ -113,7 +113,7 @@
         "infill": "30–50 %, 3 Perimeter"
       }
     },
-    "viewerHint": "Ziehen zum Drehen · Scrollen zum Zoomen · Masse direkt am Modell eintippen",
+    "viewerHint": "Ziehen zum Drehen · Scrollen zum Zoomen · Masse am Modell eintippen oder am Griff ziehen",
     "errorGenerate": "Generierung fehlgeschlagen",
     "noPreview": "Noch keine Vorschau",
     "calibrated": "✓ Drucker kalibriert – Toleranzen werden angewandt",

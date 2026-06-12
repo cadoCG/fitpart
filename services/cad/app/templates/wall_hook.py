@@ -13,6 +13,7 @@ from __future__ import annotations
 from build123d import Cone, Cylinder, Part, Polyline, Pos, Rot, extrude, make_face
 from pydantic import BaseModel, Field, model_validator
 
+from ..dimensions import DimensionSpec
 from ..tolerance import FeatureType, FitClass, ToleranceProfile, effective_dim
 from .base import Template, register
 
@@ -72,11 +73,50 @@ def build(params: WallHookParams, profile: ToleranceProfile | None = None) -> Pa
     return body
 
 
+def dimensions(
+    params: WallHookParams, profile: ToleranceProfile | None = None
+) -> list[DimensionSpec]:
+    """Bemassungs-Anker (gleiche effektive Masse wie build())."""
+    t = params.thickness
+    g = effective_dim(params.hook_depth, FeatureType.SLOT, params.fit, profile)
+    h = params.back_height
+    w = params.width
+    lip = params.lip_height
+    screw_r = effective_dim(params.screw_d, FeatureType.HOLE, FitClass.LOOSE, profile) / 2
+    hole_y = h - 2 * params.screw_d
+    return [
+        # Der Hakenspalt – dort, wo man den Messschieber ansetzt: an der
+        # Maul-Öffnung zwischen Rückplatte und Lippen-Oberkante.
+        DimensionSpec(
+            param="hook_depth",
+            p1=(t, t + lip, w / 2), p2=(t + g, t + lip, w / 2),
+            offset_dir=(0, 1, 0),
+        ),
+        DimensionSpec(
+            param="width",
+            p1=(2 * t + g, 0, 0), p2=(2 * t + g, 0, w),
+            offset_dir=(0, -1, 0),
+        ),
+        DimensionSpec(
+            param="back_height",
+            p1=(0, 0, w), p2=(0, h, w), offset_dir=(0, 0, 1),
+        ),
+        # Leader weiter nach aussen (|offset_dir| = Abstands-Faktor), damit
+        # der Chip nicht mit dem Hakenspalt-Chip in der Mitte kollidiert.
+        DimensionSpec(
+            param="screw_d", kind="diameter",
+            p1=(t, hole_y - screw_r, w / 2), p2=(t, hole_y + screw_r, w / 2),
+            offset_dir=(2.2, 0, 0),
+        ),
+    ]
+
+
 TEMPLATE = register(
     Template(
         archetype="wall_hook",
         params_model=WallHookParams,
         build=build,
+        dimensions=dimensions,
         title_de="Wandhaken",
         description_de="J-Profil-Haken mit Rückplatte, Schraubloch und Senkung.",
         print_rec={

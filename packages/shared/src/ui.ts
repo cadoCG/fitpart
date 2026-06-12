@@ -15,36 +15,9 @@ export type ArchetypeUi = {
   defaults: Record<string, number | string | boolean>;
 };
 
-export type ViewerDimAxis = "x" | "y" | "z";
-
-/**
- * Bemassung direkt am 3D-Modell (Phase 1): nur Parameter, deren Wert exakt
- * einer Bounding-Box-Ausdehnung des Templates entspricht (Achsen in
- * build123d-Koordinaten, nicht toleranzbehaftet). Innen-/Verbundmasse
- * (inner_d, hook_depth, device_w, …) brauchen semantische Anker aus dem
- * CAD-Service (dimensions() pro Template) und folgen in Phase 2.
- */
-export const VIEWER_DIMS: Record<
-  string,
-  readonly { param: string; axis: ViewerDimAxis }[]
-> = {
-  spacer: [
-    { param: "outer_d", axis: "x" },
-    { param: "height", axis: "z" },
-  ],
-  wall_hook: [
-    { param: "back_height", axis: "y" },
-    { param: "width", axis: "z" },
-  ],
-  l_bracket: [
-    { param: "leg_a", axis: "x" },
-    { param: "width", axis: "y" },
-    { param: "leg_b", axis: "z" },
-  ],
-  pipe_clip: [{ param: "width", axis: "z" }],
-  cable_clip: [{ param: "depth", axis: "y" }],
-  device_holder: [{ param: "back_height", axis: "z" }],
-};
+// Hinweis: Die 3D-Bemassung (Phase 2) kommt als semantische Anker vom
+// CAD-Service (POST /dimensions, siehe ./dimensions.ts) – die frühere
+// Bounding-Box-Registry VIEWER_DIMS wurde dadurch abgelöst.
 
 export const ARCHETYPE_UI: Record<string, ArchetypeUi> = {
   spacer: {

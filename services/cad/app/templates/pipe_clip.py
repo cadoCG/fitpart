@@ -12,6 +12,7 @@ from __future__ import annotations
 from build123d import Box, Cylinder, Part, Pos, Rot
 from pydantic import BaseModel, Field
 
+from ..dimensions import DimensionSpec
 from ..tolerance import FeatureType, FitClass, ToleranceProfile, effective_dim
 from .base import Template, register
 
@@ -66,11 +67,33 @@ def build(params: PipeClipParams, profile: ToleranceProfile | None = None) -> Pa
     return body
 
 
+def dimensions(
+    params: PipeClipParams, profile: ToleranceProfile | None = None
+) -> list[DimensionSpec]:
+    """Bemassungs-Anker (gleiche effektive Masse wie build())."""
+    r_i = effective_dim(params.pipe_d, FeatureType.HOLE, params.fit, profile) / 2
+    r_o = r_i + params.wall
+    w = params.width
+    return [
+        # Rohr-⌀ als horizontale Sehne durch die Bohrungsmitte (die C-Öffnung
+        # liegt oben, bei y=0 ist der Ring beidseitig geschlossen).
+        DimensionSpec(
+            param="pipe_d", kind="diameter",
+            p1=(-r_i, 0, w / 2), p2=(r_i, 0, w / 2), offset_dir=(0, 0, 1),
+        ),
+        DimensionSpec(
+            param="width",
+            p1=(r_o, 0, -w / 2), p2=(r_o, 0, w / 2), offset_dir=(1, 0, 0),
+        ),
+    ]
+
+
 TEMPLATE = register(
     Template(
         archetype="pipe_clip",
         params_model=PipeClipParams,
         build=build,
+        dimensions=dimensions,
         title_de="Rohr-/Stangenclip",
         description_de="C-Schnappclip mit Fussplatte und zwei Schraublöchern.",
         print_rec={

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
+from .dimensions import DimensionSpec
 from .export import ExportFormat
 from .tolerance import ToleranceProfile
 from .validate import ValidationResult
@@ -26,6 +27,13 @@ class TemplateInfo(BaseModel):
 class ValidateResponse(BaseModel):
     archetype: str
     validation: ValidationResult
+
+
+class DimensionsResponse(BaseModel):
+    """Bemassungs-Anker für die 3D-Vorschau (leer, wenn das Template keine hat)."""
+
+    archetype: str
+    dims: list[DimensionSpec]
 
 
 class LaddersResponse(BaseModel):

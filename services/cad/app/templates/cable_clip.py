@@ -15,6 +15,7 @@ from enum import Enum
 from build123d import Box, Cylinder, Part, Pos, Rot
 from pydantic import BaseModel, Field
 
+from ..dimensions import DimensionSpec
 from ..tolerance import FeatureType, FitClass, ToleranceProfile, effective_dim
 from .base import Template, register
 
@@ -70,11 +71,43 @@ def build(params: CableClipParams, profile: ToleranceProfile | None = None) -> P
     return body
 
 
+def dimensions(
+    params: CableClipParams, profile: ToleranceProfile | None = None
+) -> list[DimensionSpec]:
+    """Bemassungs-Anker (gleiche effektive Masse wie build())."""
+    d_eff = effective_dim(params.cable_d, FeatureType.HOLE, params.fit, profile)
+    r = d_eff / 2
+    wall = params.wall
+    n = params.channels
+    depth = params.depth
+    length = n * d_eff + (n + 1) * wall
+    # Erster Kanal (wie in build()).
+    cx = -length / 2 + wall + r
+    cz = wall + r
+    return [
+        # Kabel-⌀ am ersten Kanal (vordere Stirnfläche), Masslinie über dem
+        # Clip – getrennt vom Tiefen-Chip am linken Ende.
+        DimensionSpec(
+            param="cable_d", kind="diameter",
+            p1=(cx - r, depth / 2, cz), p2=(cx + r, depth / 2, cz),
+            offset_dir=(0, 0, 1.4),
+        ),
+        # Cliptiefe am schraublaschen-freien Ende; weiter nach aussen
+        # (|offset_dir| = Abstands-Faktor), weg vom Kabel-⌀-Chip.
+        DimensionSpec(
+            param="depth",
+            p1=(-length / 2, -depth / 2, 0), p2=(-length / 2, depth / 2, 0),
+            offset_dir=(-3.5, 0, 0),
+        ),
+    ]
+
+
 TEMPLATE = register(
     Template(
         archetype="cable_clip",
         params_model=CableClipParams,
         build=build,
+        dimensions=dimensions,
         title_de="Kabelclip",
         description_de="1–4 parallele Schnappkanäle; Montage per Schraube oder Klebepad.",
         print_rec={

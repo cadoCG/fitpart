@@ -12,6 +12,7 @@ export * from "./tolerance";
 export * from "./calibration";
 export * from "./analyze";
 export * from "./part_request";
+export * from "./dimensions";
 export * from "./archetypes/spacer";
 export * from "./archetypes/wall_hook";
 export * from "./archetypes/l_bracket";

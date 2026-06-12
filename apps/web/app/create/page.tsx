@@ -8,9 +8,10 @@ import {
   ARCHETYPES,
   ARCHETYPE_SCHEMAS,
   ARCHETYPE_UI,
+  DimensionsResponse,
   FitClass,
-  VIEWER_DIMS,
   type Archetype,
+  type DimensionSpec,
   type FieldMeta,
   type ToleranceProfile,
 } from "@fitpart/shared";
@@ -50,6 +51,13 @@ export default function CreatePage() {
   const [error, setError] = useState<string | null>(null);
   const [profile, setProfile] = useState<ToleranceProfile | null>(null);
   const [photoNotes, setPhotoNotes] = useState<string | null>(null);
+  // Bemassungs-Anker vom CAD-Service (semantisch, in Template-Koordinaten)
+  // plus die Nennmasse zum Fetch-Zeitpunkt – damit kann der Viewer die
+  // Masslinie beim Tippen/Ziehen live strecken, bevor frische Anker da sind.
+  const [dimSpecs, setDimSpecs] = useState<{
+    specs: DimensionSpec[];
+    base: Record<string, number>;
+  }>({ specs: [], base: {} });
   const abortRef = useRef<AbortController | null>(null);
 
   // Kalibrier-Profil laden (Cloud vor localStorage) und auf alle
@@ -65,6 +73,7 @@ export default function CreatePage() {
     setArchetype(next);
     setParams(ARCHETYPE_UI[next].defaults);
     setStl(null);
+    setDimSpecs({ specs: [], base: {} });
     setPhotoNotes(null);
   };
 
@@ -77,6 +86,7 @@ export default function CreatePage() {
     setArchetype(next);
     setParams(wizardParams);
     setStl(null);
+    setDimSpecs({ specs: [], base: {} });
     setPhotoNotes(notes ?? null);
   };
 
@@ -94,6 +104,28 @@ export default function CreatePage() {
       const ctrl = new AbortController();
       abortRef.current = ctrl;
       setBusy(true);
+
+      // Bemassungs-Anker parallel zur Generierung holen (reine Param-
+      // Arithmetik im CAD-Service). Fehler hier sind nicht kritisch –
+      // dann gibt es einfach keine 3D-Bemassung.
+      void fetch("/api/cad/dimensions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ archetype, params: parsed.data }),
+        signal: ctrl.signal,
+      })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((json) => {
+          const dims = DimensionsResponse.safeParse(json);
+          if (!dims.success) return;
+          const base: Record<string, number> = {};
+          for (const [k, v] of Object.entries(parsed.data)) {
+            if (typeof v === "number") base[k] = v;
+          }
+          setDimSpecs({ specs: dims.data.dims, base });
+        })
+        .catch(() => {});
+
       try {
         const res = await fetch("/api/cad/generate", {
           method: "POST",
@@ -238,25 +270,31 @@ export default function CreatePage() {
 
   const calibrated = Boolean(profile?.calibrated);
 
-  // Bemassung direkt am 3D-Modell: nur Parameter mit exakter Bounding-Box-
-  // Entsprechung (VIEWER_DIMS); Ranges/Steps kommen aus der UI-Registry.
-  const viewerDims = (VIEWER_DIMS[archetype] ?? []).flatMap(
-    ({ param, axis }) => {
-      const field = ARCHETYPE_UI[archetype].fields.find((f) => f.key === param);
-      if (!field || (field.kind !== "slider" && field.kind !== "int")) return [];
-      return [
-        {
-          param,
-          axis,
-          label: t(`params.${param}`),
-          value: Number(params[param]),
-          min: field.min,
-          max: field.max,
-          step: field.kind === "int" ? 1 : (field.step ?? 0.1),
-        },
-      ];
-    },
-  );
+  // Bemassung direkt am 3D-Modell: semantische Anker vom CAD-Service,
+  // angereichert um Label/Ranges aus i18n + UI-Registry; angezeigt und
+  // editiert wird das Nennmass aus dem Param-State.
+  const viewerDims = dimSpecs.specs.flatMap((spec) => {
+    const field = ARCHETYPE_UI[archetype].fields.find(
+      (f) => f.key === spec.param,
+    );
+    if (!field || (field.kind !== "slider" && field.kind !== "int")) return [];
+    const value = Number(params[spec.param]);
+    return [
+      {
+        param: spec.param,
+        kind: spec.kind,
+        p1: spec.p1,
+        p2: spec.p2,
+        offsetDir: spec.offset_dir,
+        label: t(`params.${spec.param}`),
+        value,
+        baseValue: dimSpecs.base[spec.param] ?? value,
+        min: field.min,
+        max: field.max,
+        step: field.kind === "int" ? 1 : (field.step ?? 0.1),
+      },
+    ];
+  });
 
   return (
     <div style={{ minHeight: "100%", background: "var(--surface-page)" }}>

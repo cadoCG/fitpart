@@ -13,6 +13,7 @@ from __future__ import annotations
 from build123d import Axis, Cylinder, Part
 from pydantic import BaseModel, Field, model_validator
 
+from ..dimensions import DimensionSpec
 from ..tolerance import FeatureType, FitClass, ToleranceProfile, effective_dim
 from .base import Template, register
 
@@ -57,11 +58,35 @@ def build(params: SpacerParams, profile: ToleranceProfile | None = None) -> Part
     return Part() + part if not isinstance(part, Part) else part
 
 
+def dimensions(
+    params: SpacerParams, profile: ToleranceProfile | None = None
+) -> list[DimensionSpec]:
+    """Bemassungs-Anker (gleiche effektive Masse wie build())."""
+    r_i = effective_dim(params.inner_d, FeatureType.HOLE, params.fit, profile) / 2
+    r_o = params.outer_d / 2
+    h2 = params.height / 2
+    return [
+        DimensionSpec(
+            param="inner_d", kind="diameter",
+            p1=(-r_i, 0, h2), p2=(r_i, 0, h2), offset_dir=(0, 0, 1),
+        ),
+        DimensionSpec(
+            param="outer_d", kind="diameter",
+            p1=(-r_o, 0, -h2), p2=(r_o, 0, -h2), offset_dir=(0, 0, -1),
+        ),
+        DimensionSpec(
+            param="height",
+            p1=(r_o, 0, -h2), p2=(r_o, 0, h2), offset_dir=(1, 0, 0),
+        ),
+    ]
+
+
 TEMPLATE = register(
     Template(
         archetype="spacer",
         params_model=SpacerParams,
         build=build,
+        dimensions=dimensions,
         title_de="Distanzhülse",
         description_de="Hohlzylinder als Abstandshalter über Schraube/Welle.",
         print_rec={

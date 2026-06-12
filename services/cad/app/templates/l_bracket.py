@@ -12,6 +12,7 @@ from __future__ import annotations
 from build123d import Box, Cylinder, Part, Polyline, Pos, Rot, extrude, make_face
 from pydantic import BaseModel, Field, model_validator
 
+from ..dimensions import DimensionSpec
 from ..tolerance import FeatureType, FitClass, ToleranceProfile, effective_dim
 from .base import Template, register
 
@@ -69,11 +70,41 @@ def build(params: LBracketParams, profile: ToleranceProfile | None = None) -> Pa
     return body
 
 
+def dimensions(
+    params: LBracketParams, profile: ToleranceProfile | None = None
+) -> list[DimensionSpec]:
+    """Bemassungs-Anker (gleiche effektive Masse wie build())."""
+    a, b, t, w = params.leg_a, params.leg_b, params.thickness, params.width
+    screw_r = effective_dim(params.screw_d, FeatureType.HOLE, FitClass.LOOSE, profile) / 2
+    # Erstes Loch auf dem horizontalen Schenkel (wie in build()).
+    x1 = t + (a - t) / (params.holes_per_leg + 1)
+    return [
+        DimensionSpec(
+            param="leg_a",
+            p1=(0, 0, 0), p2=(a, 0, 0), offset_dir=(0, -1, 0),
+        ),
+        DimensionSpec(
+            param="leg_b",
+            p1=(0, w, 0), p2=(0, w, b), offset_dir=(0, 1, 0),
+        ),
+        DimensionSpec(
+            param="width",
+            p1=(a, 0, 0), p2=(a, w, 0), offset_dir=(1, 0, 0),
+        ),
+        DimensionSpec(
+            param="screw_d", kind="diameter",
+            p1=(x1 - screw_r, w / 2, t), p2=(x1 + screw_r, w / 2, t),
+            offset_dir=(0, 0, 1),
+        ),
+    ]
+
+
 TEMPLATE = register(
     Template(
         archetype="l_bracket",
         params_model=LBracketParams,
         build=build,
+        dimensions=dimensions,
         title_de="L-Winkel / Regalträger",
         description_de="Rechtwinkliger Träger mit Lochbild und optionaler Verrippung.",
         print_rec={

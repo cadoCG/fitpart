@@ -32,7 +32,13 @@ from .calibration import (
     compute_profile,
 )
 from .export import CONTENT_TYPES, export_part
-from .schemas import GenerateRequest, LaddersResponse, TemplateInfo, ValidateResponse
+from .schemas import (
+    DimensionsResponse,
+    GenerateRequest,
+    LaddersResponse,
+    TemplateInfo,
+    ValidateResponse,
+)
 from .templates import REGISTRY
 from .templates.base import get_template
 from .tolerance import ToleranceProfile
@@ -96,8 +102,8 @@ def calibration_profile(data: CalibrationInput) -> ToleranceProfile:
     return compute_profile(data)
 
 
-def _build(req: GenerateRequest):
-    """Gemeinsamer Pfad: Template auflösen, Params validieren, Geometrie bauen."""
+def _resolve(req: GenerateRequest):
+    """Template auflösen + Params validieren (404/422 als HTTP-Fehler)."""
     try:
         template = get_template(req.archetype)
     except KeyError as exc:
@@ -110,9 +116,28 @@ def _build(req: GenerateRequest):
         # exc.json() liefert eine JSON-sichere Repräsentation.
         raise HTTPException(status_code=422, detail=json.loads(exc.json())) from exc
 
+    return template, params
+
+
+def _build(req: GenerateRequest):
+    """Gemeinsamer Pfad: Template auflösen, Params validieren, Geometrie bauen."""
+    template, params = _resolve(req)
     min_wall = 2 * req.tolerance_profile.nozzle_mm
     part = template.build(params, req.tolerance_profile)
     return template, part, min_wall
+
+
+@app.post("/dimensions", response_model=DimensionsResponse)
+def dimensions(req: GenerateRequest) -> DimensionsResponse:
+    """Bemassungs-Anker für die 3D-Vorschau – reine Param-Arithmetik,
+    baut keine Geometrie (schnell genug für jeden Slider-Tick)."""
+    template, params = _resolve(req)
+    dims = (
+        template.dimensions(params, req.tolerance_profile)
+        if template.dimensions
+        else []
+    )
+    return DimensionsResponse(archetype=template.archetype, dims=dims)
 
 
 @app.post("/validate", response_model=ValidateResponse)
