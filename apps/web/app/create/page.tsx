@@ -11,6 +11,7 @@ import {
   DimensionsResponse,
   FitClass,
   type Archetype,
+  type CreditSku,
   type DimensionSpec,
   type FieldMeta,
   type ToleranceProfile,
@@ -20,6 +21,7 @@ import FeedbackPrompt from "@/components/FeedbackPrompt";
 import { Logo } from "@/components/Logo";
 import MeasureWizard from "@/components/MeasureWizard";
 import ParamSlider from "@/components/ParamSlider";
+import Paywall from "@/components/Paywall";
 import PartRequestPanel from "@/components/PartRequestPanel";
 import {
   Badge,
@@ -29,7 +31,8 @@ import {
   Select,
   ViewerFrame,
 } from "@/components/ui";
-import { recordDownload } from "@/lib/feedback";
+import { downloadPart, fetchBillingState } from "@/lib/billing";
+import { rememberPendingFeedback } from "@/lib/feedback";
 import { loadActiveTolerance } from "@/lib/profiles";
 
 // three/WebGL nur im Browser laden.
@@ -43,6 +46,7 @@ type ParamValues = Record<string, number | string | boolean>;
 
 export default function CreatePage() {
   const t = useTranslations("Create");
+  const tb = useTranslations("Billing");
   const [archetype, setArchetype] = useState<Archetype>("spacer");
   const [params, setParams] = useState<ParamValues>(
     ARCHETYPE_UI.spacer.defaults,
@@ -53,6 +57,13 @@ export default function CreatePage() {
   const [error, setError] = useState<string | null>(null);
   const [profile, setProfile] = useState<ToleranceProfile | null>(null);
   const [photoNotes, setPhotoNotes] = useState<string | null>(null);
+  // Billing (Pay-per-Part): credits = Guthaben des angemeldeten Users
+  // (null = unbekannt/anonym). Paywall/Login-Hinweis bei fehlendem Zugang.
+  const [authed, setAuthed] = useState(false);
+  const [credits, setCredits] = useState<number | null>(null);
+  const [paywall, setPaywall] = useState(false);
+  const [authNeeded, setAuthNeeded] = useState(false);
+  const [buyNotice, setBuyNotice] = useState<string | null>(null);
   // Bemassungs-Anker vom CAD-Service (semantisch, in Template-Koordinaten)
   // plus die Nennmasse zum Fetch-Zeitpunkt – damit kann der Viewer die
   // Masslinie beim Tippen/Ziehen live strecken, bevor frische Anker da sind.
@@ -67,6 +78,14 @@ export default function CreatePage() {
   useEffect(() => {
     void loadActiveTolerance().then(setProfile);
   }, []);
+
+  // Guthabenstand laden (vergibt lazy die Welcome-Credits beim ersten Mal).
+  const refreshBilling = () =>
+    void fetchBillingState().then((s) => {
+      setAuthed(Boolean(s?.authenticated));
+      setCredits(s?.authenticated ? (s.credits ?? 0) : null);
+    });
+  useEffect(refreshBilling, []);
 
   const set = (key: string, value: number | string | boolean) =>
     setParams((p) => ({ ...p, [key]: value }));
@@ -161,8 +180,8 @@ export default function CreatePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [archetype, params, profile]);
 
-  const saveBlob = (data: BlobPart, type: string, ext: string) => {
-    const url = URL.createObjectURL(new Blob([data], { type }));
+  const saveBlob = (data: Blob, ext: string) => {
+    const url = URL.createObjectURL(data);
     const a = document.createElement("a");
     a.href = url;
     a.download = `${archetype}.${ext}`;
@@ -170,53 +189,43 @@ export default function CreatePage() {
     URL.revokeObjectURL(url);
   };
 
-  // Download für den fit_feedback-Loop protokollieren (fire-and-forget,
-  // stört den Download nie). 48 h später fragt FeedbackPrompt nach.
-  const logDownload = (format: "stl" | "3mf") => {
-    const parsed = ARCHETYPE_SCHEMAS[archetype].safeParse(params);
-    if (!parsed.success) return;
-    void recordDownload({
-      archetype,
-      params: parsed.data,
-      ...(profile ? { tolerance_profile: profile } : {}),
-      format,
-    });
-  };
-
-  // STL kommt aus der Vorschau (gecacht); 3MF wird frisch geholt, weil es
-  // zusätzlich die Druckempfehlung als Metadaten trägt.
+  // Gated Download (Billing): zieht einen Credit oder ist gratis, wenn das
+  // Teil schon freigeschaltet ist. 401 → Konto-Hinweis, 402 → Paywall.
   const download = async (format: "stl" | "3mf") => {
-    if (format === "stl") {
-      if (stl) {
-        saveBlob(stl, "model/stl", "stl");
-        logDownload("stl");
-      }
-      return;
-    }
     const parsed = ARCHETYPE_SCHEMAS[archetype].safeParse(params);
     if (!parsed.success) return;
+    setAuthNeeded(false);
     setDownloading(true);
     try {
-      const res = await fetch("/api/cad/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          archetype,
-          params: parsed.data,
-          ...(profile ? { tolerance_profile: profile } : {}),
-          format: "3mf",
-        }),
+      const result = await downloadPart({
+        archetype,
+        params: parsed.data,
+        ...(profile ? { tolerance_profile: profile } : {}),
+        format,
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      saveBlob(await res.arrayBuffer(), "model/3mf", "3mf");
-      logDownload("3mf");
-    } catch (e) {
-      setError(
-        `${t("errorGenerate")}: ${e instanceof Error ? e.message : String(e)}`,
-      );
+      if (result.ok) {
+        saveBlob(result.blob, format);
+        setCredits(result.credits);
+        setAuthed(true);
+        if (result.feedbackToken) {
+          rememberPendingFeedback(result.feedbackToken, archetype);
+        }
+      } else if (result.reason === "auth_required") {
+        setAuthNeeded(true);
+      } else if (result.reason === "no_credits") {
+        setCredits(0);
+        setPaywall(true);
+      } else {
+        setError(`${t("errorGenerate")}: HTTP ${result.status}`);
+      }
     } finally {
       setDownloading(false);
     }
+  };
+
+  // Phase A: Checkout folgt in Phase B (Stripe). Hier nur ein Hinweis.
+  const startCheckout = (_sku: CreditSku) => {
+    setBuyNotice(t("checkoutSoon"));
   };
 
   const renderField = (field: FieldMeta) => {
@@ -386,6 +395,18 @@ export default function CreatePage() {
             noteLabel={`${t("printRec.fromPhoto")}:`}
           />
 
+          {authed && credits !== null && (
+            <div
+              className="fp-panel flex items-center gap-2"
+              style={{ font: "var(--type-body-sm)" }}
+            >
+              <span style={{ color: "var(--text-secondary)" }}>
+                {tb("creditsLabel")}
+              </span>
+              <strong style={{ marginLeft: "auto" }}>{credits}</strong>
+            </div>
+          )}
+
           <div className="fpk-downloads">
             <Button
               block
@@ -404,6 +425,26 @@ export default function CreatePage() {
               {t("downloadStl")}
             </Button>
           </div>
+
+          {authNeeded && (
+            <div className="fp-panel fp-panel--warn flex items-center gap-2" style={{ font: "var(--type-body-sm)" }}>
+              {tb("authRequired")}
+              <Link href="/login" style={{ marginLeft: "auto", fontWeight: 600, textDecoration: "underline" }}>
+                {tb("toLogin")}
+              </Link>
+            </div>
+          )}
+
+          <Paywall
+            open={paywall}
+            credits={credits}
+            onBuy={startCheckout}
+            onClose={() => {
+              setPaywall(false);
+              setBuyNotice(null);
+            }}
+            notice={buyNotice}
+          />
         </section>
 
         <section className="fpk-werkbank__viewer">

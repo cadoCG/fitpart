@@ -37,6 +37,15 @@ function save(list: PendingFeedback[]): void {
 }
 
 /**
+ * Feedback-Token eines (gegateten) Downloads lokal vormerken – der Token kommt
+ * aus dem X-Feedback-Token-Header von /api/download. 48 h später fragt
+ * FeedbackPrompt nach.
+ */
+export function rememberPendingFeedback(token: string, archetype: string): void {
+  save([{ token, archetype, at: Date.now() }, ...load()]);
+}
+
+/**
  * Download an /api/parts melden (fire-and-forget) und den Feedback-Token
  * lokal vormerken. Fehler werden geschluckt – das Protokoll darf den
  * Download nie stören.

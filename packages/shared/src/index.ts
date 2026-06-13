@@ -22,6 +22,7 @@ export * from "./analyze";
 export * from "./part_request";
 export * from "./dimensions";
 export * from "./feedback";
+export * from "./billing";
 export * from "./archetypes/spacer";
 export * from "./archetypes/wall_hook";
 export * from "./archetypes/l_bracket";

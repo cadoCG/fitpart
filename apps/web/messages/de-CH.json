@@ -316,5 +316,21 @@
     "invalid": "Dieser Feedback-Link ist ungültig oder abgelaufen.",
     "already": "Für dieses Teil ist schon Feedback erfasst – du kannst es unten aktualisieren.",
     "backToCreate": "Neues Teil erstellen"
+  },
+  "Billing": {
+    "creditsLabel": "Guthaben (Teile)",
+    "authRequired": "Zum Download bitte anmelden – neue Konten erhalten 3 Gratis-Teile.",
+    "toLogin": "Anmelden",
+    "paywallTitle": "Guthaben aufladen",
+    "paywallSub": "Du hast {credits} Credits. 1 Credit schaltet ein Teil frei – erneuter Download desselben Teils ist gratis.",
+    "pack": {
+      "single": "Einzelteil",
+      "pack5": "5er-Paket",
+      "pack20": "20er-Paket"
+    },
+    "perCredit": "CHF {chf} pro Teil",
+    "twintHint": "Bezahlung per TWINT oder Karte.",
+    "checkoutSoon": "Bezahlung wird in Kürze freigeschaltet.",
+    "close": "Schliessen"
   }
 }
