@@ -33,7 +33,13 @@
       "cable_clip": "Kabelclip",
       "device_holder": "Gerätehalterung",
       "knob": "Drehknopf (D-Welle)",
-      "adapter_ring": "Adapterring / Reduzierhülse"
+      "adapter_ring": "Adapterring / Reduzierhülse",
+      "furniture_glide": "Möbelgleiter / Fusskappe",
+      "snap_lid": "Schnappdeckel",
+      "hinge": "Scharnier (Filament-Pin)",
+      "end_cap": "Endkappe Rohr/Profil",
+      "drawer_handle": "Schubladengriff",
+      "spring_clip": "Halteklammer / Federclip"
     },
     "params": {
       "inner_d": "Innendurchmesser (Gegenstück)",
@@ -68,7 +74,21 @@
       "ribs": "Griffrillen",
       "collar": "Anschlagbund",
       "fit_outer": "Passung aussen (Zapfen)",
-      "fit_inner": "Passung innen (Bohrung)"
+      "fit_inner": "Passung innen (Bohrung)",
+      "leg_w": "Bein-Mass (⌀ / Kantenlänge)",
+      "shape": "Querschnitt",
+      "rim_d": "Behälter-⌀ am Rand",
+      "skirt_h": "Schürzenhöhe",
+      "top_t": "Deckeldicke",
+      "length": "Länge",
+      "leaf_w": "Blattbreite",
+      "pin_d": "Stift-⌀",
+      "knuckles": "Anzahl Knöchel",
+      "outer_w": "Profil-Aussenmass (⌀ / Breite)",
+      "hole_spacing": "Lochabstand",
+      "grip_d": "Griffstärke",
+      "overhang": "Überstand je Seite",
+      "opening": "Mündungsweite (Anteil)"
     },
     "fit": {
       "press": "Press (kein Spiel)",
@@ -78,7 +98,12 @@
     },
     "options": {
       "screw": "Schraube",
-      "pad": "Klebepad"
+      "pad": "Klebepad",
+      "round": "Rund",
+      "square": "Quadratisch",
+      "rect": "Rechteckig",
+      "outer": "Über das Bein/Profil",
+      "inner": "In das hohle Bein"
     },
     "generating": "Generiere …",
     "download": "STL herunterladen",
@@ -130,6 +155,36 @@
         "material": "PETG (zäh, leicht nachgiebig beim Einstecken)",
         "orientation": "Stehend drucken (Achse vertikal) – beide Durchmesser bleiben rund.",
         "infill": "Dünnwandig: 4 Perimeter, Infill unkritisch"
+      },
+      "furniture_glide": {
+        "material": "TPU (leise, rutschfest) oder PETG; PLA für harte Böden",
+        "orientation": "Stehend drucken, Gleitfläche aufs Druckbett – glatte Unterseite.",
+        "infill": "40–60 %, 3 Perimeter"
+      },
+      "snap_lid": {
+        "material": "PP (flexibel) oder PETG",
+        "orientation": "Deckplatte unten aufs Bett, Schürze nach oben – saubere Dichtfläche.",
+        "infill": "100 % bei dünner Deckplatte, sonst 3 Perimeter"
+      },
+      "hinge": {
+        "material": "PETG (zäh, gute Gleitpaarung); Stift aus Filament/Rundstab",
+        "orientation": "Flach drucken, beide Blätter offen in einer Ebene – Knöchel ohne Stützen.",
+        "infill": "40–60 %, 3 Perimeter"
+      },
+      "end_cap": {
+        "material": "PETG oder PLA; TPU wenn rutschfest gewünscht",
+        "orientation": "Mit der geschlossenen Stirn aufs Bett – Öffnung nach oben, keine Stützen.",
+        "infill": "20–30 %, 3 Perimeter"
+      },
+      "drawer_handle": {
+        "material": "PLA reicht; PETG für mehr Zähigkeit",
+        "orientation": "Liegend drucken (Griff flach), Schraublöcher waagerecht.",
+        "infill": "40–60 %, 3–4 Perimeter (Belastung beim Ziehen)"
+      },
+      "spring_clip": {
+        "material": "PETG (federt dauerhaft); PLA bricht bei Wechsellast",
+        "orientation": "Liegend drucken, Achse senkrecht zum Bett – Schichtlinien quer zur Federrichtung.",
+        "infill": "40–60 %, 3 Perimeter"
       }
     },
     "viewerHint": "Ziehen zum Drehen · Scrollen zum Zoomen · Masse am Modell eintippen oder am Griff ziehen",

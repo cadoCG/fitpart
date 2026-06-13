@@ -26,6 +26,12 @@ GOLDEN_PARAMS: dict[str, dict] = {
     "device_holder": {"device_w": 70.0, "device_d": 12.0},
     "knob": {"shaft_d": 6.0, "d_flat": 4.5, "knob_d": 25.0},
     "adapter_ring": {"outer_d": 32.0, "inner_d": 25.0},
+    "furniture_glide": {"leg_w": 22.0},
+    "snap_lid": {"rim_d": 60.0},
+    "hinge": {"length": 40.0, "pin_d": 3.0},
+    "end_cap": {"outer_w": 25.0},
+    "drawer_handle": {"hole_spacing": 96.0},
+    "spring_clip": {"grip_d": 12.0},
     # Coupon-Golden ohne Beschriftung → schriftart-unabhängig deterministisch.
     "calibration_coupon": {"labels": False},
 }

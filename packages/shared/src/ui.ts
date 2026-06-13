@@ -132,4 +132,75 @@ export const ARCHETYPE_UI: Record<string, ArchetypeUi> = {
       fit_outer: "snug", fit_inner: "snug",
     },
   },
+  furniture_glide: {
+    fields: [
+      { key: "leg_w", kind: "slider", min: 5, max: 80 },
+      { key: "wall", kind: "slider", min: 1.6, max: 6 },
+      { key: "height", kind: "slider", min: 6, max: 60 },
+      { key: "shape", kind: "select", options: ["round", "square"] },
+      { key: "mount", kind: "select", options: ["outer", "inner"] },
+      { key: "fit", kind: "fit" },
+    ],
+    defaults: {
+      leg_w: 22, wall: 2.4, height: 18, shape: "round", mount: "outer", fit: "snug",
+    },
+  },
+  snap_lid: {
+    fields: [
+      { key: "rim_d", kind: "slider", min: 15, max: 200 },
+      { key: "wall", kind: "slider", min: 1.6, max: 6 },
+      { key: "skirt_h", kind: "slider", min: 5, max: 40 },
+      { key: "top_t", kind: "slider", min: 1.2, max: 6 },
+      { key: "fit", kind: "fit" },
+    ],
+    defaults: { rim_d: 60, wall: 2, skirt_h: 10, top_t: 2, fit: "snug" },
+  },
+  hinge: {
+    fields: [
+      { key: "length", kind: "slider", min: 20, max: 200 },
+      { key: "leaf_w", kind: "slider", min: 8, max: 80 },
+      { key: "thickness", kind: "slider", min: 1.6, max: 6 },
+      { key: "pin_d", kind: "slider", min: 2, max: 8, step: 0.5 },
+      { key: "knuckles", kind: "int", min: 3, max: 9 },
+      { key: "screw_d", kind: "slider", min: 2, max: 6, step: 0.5 },
+      { key: "fit", kind: "fit" },
+    ],
+    defaults: {
+      length: 40, leaf_w: 15, thickness: 2.5, pin_d: 3, knuckles: 5,
+      screw_d: 3, fit: "sliding",
+    },
+  },
+  end_cap: {
+    fields: [
+      { key: "outer_w", kind: "slider", min: 8, max: 120 },
+      { key: "outer_d", kind: "slider", min: 8, max: 120 },
+      { key: "wall", kind: "slider", min: 1.6, max: 6 },
+      { key: "depth", kind: "slider", min: 6, max: 80 },
+      { key: "shape", kind: "select", options: ["round", "square", "rect"] },
+      { key: "fit", kind: "fit" },
+    ],
+    defaults: {
+      outer_w: 25, outer_d: 20, wall: 2, depth: 20, shape: "round", fit: "snug",
+    },
+  },
+  drawer_handle: {
+    fields: [
+      { key: "hole_spacing", kind: "slider", min: 32, max: 256 },
+      { key: "grip_d", kind: "slider", min: 8, max: 30 },
+      { key: "height", kind: "slider", min: 18, max: 70 },
+      { key: "overhang", kind: "slider", min: 0, max: 60 },
+      { key: "screw_d", kind: "slider", min: 3, max: 6, step: 0.5 },
+    ],
+    defaults: { hole_spacing: 96, grip_d: 12, height: 30, overhang: 15, screw_d: 4 },
+  },
+  spring_clip: {
+    fields: [
+      { key: "grip_d", kind: "slider", min: 3, max: 60 },
+      { key: "opening", kind: "slider", min: 0.3, max: 0.9, step: 0.01 },
+      { key: "thickness", kind: "slider", min: 1.2, max: 6 },
+      { key: "width", kind: "slider", min: 4, max: 60 },
+      { key: "fit", kind: "fit" },
+    ],
+    defaults: { grip_d: 12, opening: 0.65, thickness: 2.4, width: 10, fit: "snug" },
+  },
 };

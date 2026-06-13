@@ -9,6 +9,12 @@ import { CableClipParams } from "./archetypes/cable_clip";
 import { DeviceHolderParams } from "./archetypes/device_holder";
 import { KnobParams } from "./archetypes/knob";
 import { AdapterRingParams } from "./archetypes/adapter_ring";
+import { FurnitureGlideParams } from "./archetypes/furniture_glide";
+import { SnapLidParams } from "./archetypes/snap_lid";
+import { HingeParams } from "./archetypes/hinge";
+import { EndCapParams } from "./archetypes/end_cap";
+import { DrawerHandleParams } from "./archetypes/drawer_handle";
+import { SpringClipParams } from "./archetypes/spring_clip";
 
 export * from "./tolerance";
 export * from "./calibration";
@@ -24,6 +30,12 @@ export * from "./archetypes/cable_clip";
 export * from "./archetypes/device_holder";
 export * from "./archetypes/knob";
 export * from "./archetypes/adapter_ring";
+export * from "./archetypes/furniture_glide";
+export * from "./archetypes/snap_lid";
+export * from "./archetypes/hinge";
+export * from "./archetypes/end_cap";
+export * from "./archetypes/drawer_handle";
+export * from "./archetypes/spring_clip";
 export * from "./ui";
 
 /** Bekannte Archetypen → Zod-Param-Schema (muss mit der CAD-Registry übereinstimmen). */
@@ -36,6 +48,12 @@ export const ARCHETYPE_SCHEMAS = {
   device_holder: DeviceHolderParams,
   knob: KnobParams,
   adapter_ring: AdapterRingParams,
+  furniture_glide: FurnitureGlideParams,
+  snap_lid: SnapLidParams,
+  hinge: HingeParams,
+  end_cap: EndCapParams,
+  drawer_handle: DrawerHandleParams,
+  spring_clip: SpringClipParams,
 } as const;
 
 export type Archetype = keyof typeof ARCHETYPE_SCHEMAS;
@@ -64,6 +82,12 @@ export const CRITICAL_DIMS = {
   device_holder: ["device_w", "device_d"],
   knob: ["shaft_d", "d_flat", "knob_d"],
   adapter_ring: ["outer_d", "inner_d", "height"],
+  furniture_glide: ["leg_w", "height"],
+  snap_lid: ["rim_d"],
+  hinge: ["length", "pin_d"],
+  end_cap: ["outer_w"],
+  drawer_handle: ["hole_spacing"],
+  spring_clip: ["grip_d"],
 } as const satisfies Record<Archetype, readonly string[]>;
 
 // Compile-Check: ArchetypeEnum (analyze.ts) und Registry decken sich.

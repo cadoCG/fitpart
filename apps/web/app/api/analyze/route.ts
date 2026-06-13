@@ -50,6 +50,18 @@ oder Ersatzteil-Problems und ordnest es einem dieser Archetypen zu:
   Poti, Encoder, Herdschalter, Möbelknopf)
 - adapter_ring: Adapterring/Reduzierhülse (Hülse zwischen zwei Durchmessern,
   z. B. Schlauch auf Staubsaugerstutzen, Rohr-Reduktion)
+- furniture_glide: Möbelgleiter/Fusskappe (Kappe über ein Stuhl-/Möbelbein
+  oder Zapfen ins hohle Bein; rund oder quadratisch)
+- snap_lid: Schnappdeckel/Behälterdeckel (runder Deckel mit Schürze, der auf
+  einen Behälterrand schnappt)
+- hinge: Scharnier-Ersatz (zwei flache Blätter mit ineinandergreifenden
+  Knöcheln und durchgehendem Stift)
+- end_cap: Endkappe für Rohr-/Profilende (geschlossene Schutz-/Optikkappe,
+  rund, quadratisch oder rechteckig)
+- drawer_handle: Schubladen-/Möbelgriff (Bügelgriff mit zwei Schraublöchern
+  im genormten Lochabstand)
+- spring_clip: Halteklammer/Federclip (offener C-Clip, schnappt über einen
+  Stab oder eine Kante; ohne Schraubfuss)
 
 Numerische Parameter je Archetyp (nur diese Keys in derived_dims verwenden):
 ${paramList}

@@ -15,6 +15,12 @@ from . import cable_clip  # noqa: F401
 from . import device_holder  # noqa: F401
 from . import knob  # noqa: F401
 from . import adapter_ring  # noqa: F401
+from . import furniture_glide  # noqa: F401
+from . import snap_lid  # noqa: F401
+from . import hinge  # noqa: F401
+from . import end_cap  # noqa: F401
+from . import drawer_handle  # noqa: F401
+from . import spring_clip  # noqa: F401
 from . import calibration_coupon  # noqa: F401
 
 __all__ = ["REGISTRY", "Template", "register"]

@@ -1,0 +1,13 @@
+{
+  "params": {
+    "length": 40.0,
+    "pin_d": 3.0
+  },
+  "properties": {
+    "volume": 4574.78,
+    "area": 4601.036,
+    "size_x": 40.0,
+    "size_y": 38.25,
+    "size_z": 8.25
+  }
+}

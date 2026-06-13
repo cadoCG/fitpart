@@ -96,7 +96,13 @@ Briefing) – 6 Archetypen, Kalibrier-Coupon, kein Payment.
 - [x] Archetypen knob (Drehknopf, D-Welle) + adapter_ring (Reduzierhülse,
       einziger Archetyp mit zwei Fit-Feldern fit_outer/fit_inner) – je
       Template + Zod-Spiegel + Tests + golden + Spez + Vision-Prompt.
-- [ ] 6 weitere Phase-2-Archetypen (Reparatur-Cluster, Briefing 6)
+- [x] 6 weitere Phase-2-Archetypen (Reparatur-Cluster, Briefing 6):
+      furniture_glide (Kappe/Zapfen, rund/quadratisch), snap_lid (Schnapp-
+      deckel), hinge (Filament-Pin-Scharnier – zwei DISJUNKTE Solids, je
+      Template + Tests + golden + Spez + Zod + UI + i18n + Vision),
+      end_cap (rund/quadr./rechteckig), drawer_handle (Lochabstand),
+      spring_clip (C-Federclip). Damit 14 wählbare Archetypen (+ Coupon).
+      151 CAD-Tests grün.
 - [ ] Beta-Launch (Reddit/Foren), Analytics
 - [ ] Stripe (Free/Maker/Pro + Pay-per-Part), TWINT
 
